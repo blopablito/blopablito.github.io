@@ -6,25 +6,25 @@ Aplicación web desarrollada con React para explorar recetas categorizadas por t
 
 - React (Frontend)
 - Node.js + Express (Backend)
-- MongoDB (Base de datos)
+- MongoDB Atlas (Base de datos)
 
 ## Scripts disponibles
 
 En el directorio del proyecto puedes ejecutar:
 
-- `npm start` — Ejecuta la app en modo desarrollo.
-- `npm run build` — Compila la app para producción.
-- `npm test` — Ejecuta pruebas unitarias.
+- `npm start` — Ejecuta la app en modo desarrollo
+- `npm run build` — Compila la app para producción
+- `npm test` — Ejecuta pruebas unitarias
 
 ## Estructura del proyecto
 
-super-recetario/ 
-├── client/ # Frontend en React 
-├── server/ # Backend en Node.js + Express
+super-recetario/ ├── client/ # Frontend en React ├── server/ # Backend en Node.js + Express
+
+Código
 
 ## Despliegue
 
-- Frontend desplegado con github
+- Frontend desplegado con GitHub Pages
 - Backend desplegado con Render
 - Base de datos alojada en MongoDB Atlas
 
@@ -36,4 +36,4 @@ super-recetario/
 
 ---
 
-Desarrollado con por Pablo Infantes Soto, Joao,Fiorela y Alejandro 
+Desarrollado por Pablo Infantes Soto, Joao, Fiorela y Alejandro
