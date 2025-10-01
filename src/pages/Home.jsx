@@ -18,7 +18,7 @@ export default function Home() {
         porciones: '4',
         categoria: 'Pastas',
         dificultad: 'Intermedio',
-        imagen: 'https://images.unsplash.com/photo-1603133872872-6e7b3f6f3f3f'
+        imagen: 'https://tse2.mm.bing.net/th/id/OIP.4Rn4Pnbhdy9f75q2ry06SgHaFD?rs=1&pid=ImgDetMain&o=7&rm=3'
       },
       {
         id: 2,
@@ -28,7 +28,7 @@ export default function Home() {
         porciones: '8',
         categoria: 'Postres',
         dificultad: 'Difícil',
-        imagen: 'https://images.unsplash.com/photo-1601979031925-6f3b3f3f3f3f'
+        imagen: 'https://thumbs.dreamstime.com/b/tarta-de-chocolate-decadente-postre-rico-con-ajo-menta-un-lujoso-armario-una-rebanada-deliciosa-servida-en-plato-minimalista-la-321550753.jpg'
       },
       {
         id: 3,
@@ -38,7 +38,7 @@ export default function Home() {
         porciones: '4',
         categoria: 'Ensaladas',
         dificultad: 'Fácil',
-        imagen: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7'
+        imagen: 'https://tse2.mm.bing.net/th/id/OIP.O1TPN5Vw2fWty5_XH4DA1gHaGH?rs=1&pid=ImgDetMain&o=7&rm=3'
       },
       {
         id: 4,
@@ -48,7 +48,7 @@ export default function Home() {
         porciones: '4',
         categoria: 'Carnes',
         dificultad: 'Intermedio',
-        imagen: 'https://images.unsplash.com/photo-1604908177522-3f3f3f3f3f3f'
+        imagen: 'https://tse2.mm.bing.net/th/id/OIP.F6s5YDFbw-N7-3QTTDxV4AHaDv?rs=1&pid=ImgDetMain&o=7&rm=3'
       },
       {
         id: 5,
@@ -58,7 +58,7 @@ export default function Home() {
         porciones: '2',
         categoria: 'Pizzas',
         dificultad: 'Intermedio',
-        imagen: 'https://images.unsplash.com/photo-1601924582975-3f3f3f3f3f3f'
+        imagen: 'https://tse2.mm.bing.net/th/id/OIP.6giCe_vM77glC889QoqzFAHaE6?rs=1&pid=ImgDetMain&o=7&rm=3'
       },
       {
         id: 6,
@@ -68,7 +68,7 @@ export default function Home() {
         porciones: '6',
         categoria: 'Japonesa',
         dificultad: 'Difícil',
-        imagen: 'https://images.unsplash.com/photo-1603133872872-3f3f3f3f3f3f'
+        imagen: 'https://tse4.mm.bing.net/th/id/OIP.ibiMxqwB2a-vHAcW4-7gugHaE6?rs=1&pid=ImgDetMain&o=7&rm=3'
       }
     ]);
   }, []);
