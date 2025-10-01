@@ -1,5 +1,5 @@
 import React from 'react';
-import casita from '../../assets/casita.png';
+import casita from '../../assets/casita.jng';
 
 export default function Navbar() {
   return (
