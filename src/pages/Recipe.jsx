@@ -14,12 +14,12 @@ export default function Recipe() {
       .then(data => setReceta(data));
 
     // Verificar si está en favoritos
-    fetch("https://recetario-app-backend.onrender.com/api/favorites/user123")
-      .then(res => res.json())
-      .then(data => {
-        const ids = data.map(r => r.recipeId);
-        setEsFavorito(ids.includes(id));
-      });
+  fetch("https://recetario-app-backend.onrender.com/api/favorites/user123")
+    .then(res => res.json())
+    .then(data => {
+      const ids = data.map(r => r._id); // el backend devuelve recetas completas
+      setEsFavorito(ids.includes(id));
+    });
   }, [id]);
 
   const añadirFavorito = async () => {

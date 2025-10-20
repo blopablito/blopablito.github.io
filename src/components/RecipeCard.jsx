@@ -10,7 +10,7 @@ export default function RecipeCard({ receta }) {
     await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "usuario123", recipeId: receta.id }),
+      body: JSON.stringify({ userId: "user123", recipeId: receta.id }),
     });
     alert("Receta guardada en favoritos");
   };
