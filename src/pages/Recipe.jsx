@@ -31,14 +31,12 @@ export default function Recipe() {
     setEsFavorito(true);
   };
 
-  const eliminarFavorito = async () => {
-    await fetch(`https://recetario-app-backend.onrender.com/api/favorites/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "user123" }),
-    });
-    setEsFavorito(false);
-  };
+const eliminarFavorito = async () => {
+  await fetch(`https://recetario-app-backend.onrender.com/api/favorites/${id}/user123`, {
+    method: "DELETE",
+  });
+  setEsFavorito(false);
+};
 
   if (!receta) return <div>Cargando...</div>;
 
