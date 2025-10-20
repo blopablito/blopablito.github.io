@@ -7,7 +7,7 @@ export default function RecipeCard({ receta }) {
   const guardarFavorito = async (e) => {
     e.stopPropagation(); // evita que se active el Link
     e.preventDefault();  // evita que se navegue
-    await fetch("http://localhost:3001/api/favorites", {
+    await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: "usuario123", recipeId: receta.id }),
@@ -18,7 +18,7 @@ export default function RecipeCard({ receta }) {
   return (
     <div className="card" onClick={() => navigate(`/receta/${receta.id}`)}>
       <div className="card-inner">
-        <img src={`http://localhost:3001${receta.image}`} alt={receta.title} />
+        <img src={`https://recetario-app-backend.onrender.com${receta.image}`} alt={receta.title} />
         <div className="title">{receta.title}</div>
         <div className="meta">
           <div className="badge">🕒 {receta.minutes} min</div>

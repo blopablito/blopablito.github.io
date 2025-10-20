@@ -7,13 +7,13 @@ export default function Recipe() {
   const [receta, setReceta] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/api/recipes/${id}`)
+    fetch(`https://recetario-app-backend.onrender.com/api/recipes/${id}`)
       .then(res => res.json())
       .then(data => setReceta(data));
   }, [id]);
 
   const añadirFavorito = async () => {
-    await fetch("http://localhost:3001/api/favorites", {
+    await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: "usuario123", recipeId: id }),
@@ -45,7 +45,7 @@ export default function Recipe() {
           <div className="recipe-layout" style={{ backgroundColor: "#FF6A3D" }}>
             <aside className="recipe-box">
               <img
-                src={`http://localhost:3001${receta.image}`}
+                src={`https://recetario-app-backend.onrender.com/api/favorites${receta.image}`}
                 alt={receta.name}
                 className="recipe-image"
               />

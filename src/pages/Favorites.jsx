@@ -7,7 +7,7 @@ export default function Favorites() {
   const [filtros, setFiltros] = useState({ time: [], diff: [], type: [], rest: [] });
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/favorites/usuario123")
+    fetch("https://recetario-app-backend.onrender.com/api/recipes")
       .then(res => res.json())
       .then(data => {
         const adaptadas = data.map(r => ({
