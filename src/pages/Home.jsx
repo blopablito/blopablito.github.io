@@ -27,13 +27,12 @@ export default function Home() {
       });
   }, []);
 
-const filtrarPorTiempo = (minutos) => {
-  return filtros.time.length === 0 || filtros.time.some(rango => {
-    const [min, max] = rango.split("-").map(Number);
-    return minutos >= min && minutos <= max;
-  });
-};
-
+  const filtrarPorTiempo = (minutos) => {
+    return filtros.time.length === 0 || filtros.time.some(rango => {
+      const [min, max] = rango.split("-").map(Number);
+      return minutos >= min && minutos <= max;
+    });
+  };
 
   const filtrar = r => {
     const text = busqueda.toLowerCase();
