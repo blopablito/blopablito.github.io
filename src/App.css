@@ -358,3 +358,17 @@ header {
   display: flex;
   gap: 1rem;
 }
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .shell {
+    margin: 2vh 2vw;
+    padding: 16px;
+  }
+}
