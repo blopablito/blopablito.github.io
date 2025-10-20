@@ -372,3 +372,12 @@ header {
     padding: 16px;
   }
 }
+.eliminar-favorito {
+  background-color: #E8DCCF;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 12px;
+}

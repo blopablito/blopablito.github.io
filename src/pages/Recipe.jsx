@@ -5,19 +5,39 @@ export default function Recipe() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [receta, setReceta] = useState(null);
+  const [esFavorito, setEsFavorito] = useState(false);
 
   useEffect(() => {
+    // Cargar receta
     fetch(`https://recetario-app-backend.onrender.com/api/recipes/${id}`)
       .then(res => res.json())
       .then(data => setReceta(data));
+
+    // Verificar si está en favoritos
+    fetch("https://recetario-app-backend.onrender.com/api/favorites/user123")
+      .then(res => res.json())
+      .then(data => {
+        const ids = data.map(r => r.recipeId);
+        setEsFavorito(ids.includes(id));
+      });
   }, [id]);
 
   const añadirFavorito = async () => {
     await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "usuario123", recipeId: id }),
+      body: JSON.stringify({ userId: "user123", recipeId: id }),
     });
+    setEsFavorito(true);
+  };
+
+  const eliminarFavorito = async () => {
+    await fetch(`https://recetario-app-backend.onrender.com/api/favorites/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: "user123" }),
+    });
+    setEsFavorito(false);
   };
 
   if (!receta) return <div>Cargando...</div>;
@@ -45,7 +65,7 @@ export default function Recipe() {
           <div className="recipe-layout" style={{ backgroundColor: "#FF6A3D" }}>
             <aside className="recipe-box">
               <img
-                src={`https://recetario-app-backend.onrender.com/api/favorites${receta.image}`}
+                src={`https://recetario-app-backend.onrender.com${receta.image}`}
                 alt={receta.name}
                 className="recipe-image"
               />
@@ -65,7 +85,11 @@ export default function Recipe() {
               <ol>{receta.instructions.map((paso, i) => <li key={i}>{paso}</li>)}</ol>
 
               <div className="recipe-buttons">
-                <button className="btn" onClick={añadirFavorito}>♡ Añadir a favoritos</button>
+                {!esFavorito ? (
+                  <button className="btn" onClick={añadirFavorito}>♡ Añadir a favoritos</button>
+                ) : (
+                  <button className="btn" onClick={eliminarFavorito}>❤️ Eliminar de favoritos</button>
+                )}
                 <button className="btn" onClick={() => navigate("/")}>← Volver al inicio</button>
               </div>
             </section>
