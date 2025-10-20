@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 export default function Favorites() {
-  const [favoritos, setFavoritos] = useState([]);
-
-  useEffect(() => {
-    fetch("https://tu-backend/api/favorites/user123")
-      .then(res => res.json())
-      .then(data => {
-        setFavoritos(data);
-      });
-  }, []);
+  const recetasFavoritas = [
+    {
+      id: 1,
+      name: "Pastel de Papa",
+      cookTime: 45,
+      difficulty: "Media",
+      image: "/images/pastel.jpg",
+    },
+    {
+      id: 2,
+      name: "Ensalada César",
+      cookTime: 20,
+      difficulty: "Fácil",
+      image: "/images/cesar.jpg",
+    },
+  ];
 
   return (
     <>
@@ -33,25 +40,22 @@ export default function Favorites() {
           <div className="search-banner crema">Recetas favoritas</div>
 
           <div className="grid">
-            {favoritos.length > 0 ? (
-              favoritos.map(r => (
-                <Link to={`/receta/${r.id}`} key={r.id} className="card">
-                  <div className="card-inner">
-                    <img src={`https://tu-backend${r.image}`} alt={r.name} />
-                    <div className="title">{r.name}</div>
-                    <div className="meta">
-                      <div className="badge">🕒 {r.cookTime} min</div>
-                      <div className="badge">Dificultad: {r.difficulty}</div>
-                    </div>
+            {recetasFavoritas.map(r => (
+              <Link to={`/receta/${r.id}`} key={r.id} className="card">
+                <div className="card-inner">
+                  <img src={r.image} alt={r.name} />
+                  <div className="title">{r.name}</div>
+                  <div className="meta">
+                    <div className="badge">🕒 {r.cookTime} min</div>
+                    <div className="badge">Dificultad: {r.difficulty}</div>
                   </div>
-                </Link>
-              ))
-            ) : (
-              <div className="empty">No tienes recetas guardadas.</div>
-            )}
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </main>
     </>
   );
 }
+
