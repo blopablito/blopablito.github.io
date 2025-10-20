@@ -1,4 +1,4 @@
-export default function Profile() {
+export default function Perfil() {
   return (
     <>
       <header>
@@ -17,19 +17,17 @@ export default function Profile() {
 
       <main className="container">
         <div className="shell">
-          <div className="search-banner" style={{ backgroundColor: "#E8DCCF" }}>Perfil de usuario</div>
-          <div className="profile-layout" style={{ backgroundColor: "#FF6A3D" }}>
-            <div className="profile-box" style={{ alignItems: "center", justifyContent: "center" }}>
-              <div className="avatar-circle"></div>
-              <p className="username">usuario123</p>
+          <div className="search-banner crema">Perfil de usuario</div>
+
+          <section className="panel perfil-box">
+            <div className="perfil-info">
+              <p><strong>Nombre:</strong> Usuario123</p>
+              <p><strong>Email:</strong> usuario@ejemplo.com</p>
+              <p><strong>Recetas guardadas:</strong> 12</p>
+              <p><strong>Preferencias:</strong> Vegetariano, Sin gluten</p>
+              <button className="btn">Editar perfil</button>
             </div>
-            <div className="profile-box">
-              <p><strong>Correo:</strong> correo@gmail.com</p>
-              <p><strong>Registro:</strong> 01 enero 2025</p>
-              <button className="btn">Editar preferencias</button>
-              <button className="btn">Cerrar sesión</button>
-            </div>
-          </div>
+          </section>
         </div>
       </main>
     </>

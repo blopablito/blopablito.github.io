@@ -1,45 +1,16 @@
-import { useEffect, useState } from "react";
-import Filters from "../components/Filters";
-import RecipeCard from "../components/RecipeCard";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Favorites() {
   const [favoritos, setFavoritos] = useState([]);
-  const [filtros, setFiltros] = useState({ time: [], diff: [], type: [], rest: [] });
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/favorites/usuario123")
+    fetch("https://tu-backend/api/favorites/user123")
       .then(res => res.json())
       .then(data => {
-        const adaptadas = data.map(r => ({
-          id: r._id,
-          title: r.name,
-          description: r.description,
-          image: r.image,
-          minutes: r.cookTime,
-          difficulty: r.difficulty.toLowerCase() === "media" ? "intermedia" : r.difficulty.toLowerCase(),
-          meal: [r.category.toLowerCase()],
-          restrictions: r.restrictions || [],
-          author: r.author || 'Anónimo'
-        }));
-        setFavoritos(adaptadas);
+        setFavoritos(data);
       });
   }, []);
-
-  const filtrarPorTiempo = (minutos) => {
-    return filtros.time.length === 0 || filtros.time.some(rango => {
-      const [min, max] = rango.split("-").map(Number);
-      return minutos >= min && minutos <= max;
-    });
-  };
-
-  const filtrar = r => (
-    filtrarPorTiempo(r.minutes) &&
-    (filtros.diff.length === 0 || filtros.diff.includes(r.difficulty)) &&
-    (filtros.type.length === 0 || filtros.type.some(t => r.meal.includes(t))) &&
-    (filtros.rest.length === 0 || filtros.rest.every(fr => r.restrictions.includes(fr)))
-  );
-
-  const favoritosFiltrados = favoritos.filter(filtrar);
 
   return (
     <>
@@ -59,20 +30,25 @@ export default function Favorites() {
 
       <main className="container">
         <div className="shell">
-          <div className="search-banner crema">Mis recetas favoritas</div>
-          <div className="layout">
-            <section className="panel recipes-section wide">
-              <div className="grid">
-                {favoritosFiltrados.length > 0 ? (
-                  favoritosFiltrados.map(r => <RecipeCard key={r.id} receta={r} />)
-                ) : (
-                  <div className="empty">Aún no tienes recetas favoritas.</div>
-                )}
-              </div>
-            </section>
-            <aside className="panel filters narrow">
-              <Filters filtros={filtros} setFiltros={setFiltros} />
-            </aside>
+          <div className="search-banner crema">Recetas favoritas</div>
+
+          <div className="grid">
+            {favoritos.length > 0 ? (
+              favoritos.map(r => (
+                <Link to={`/receta/${r.id}`} key={r.id} className="card">
+                  <div className="card-inner">
+                    <img src={`https://tu-backend${r.image}`} alt={r.name} />
+                    <div className="title">{r.name}</div>
+                    <div className="meta">
+                      <div className="badge">🕒 {r.cookTime} min</div>
+                      <div className="badge">Dificultad: {r.difficulty}</div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="empty">No tienes recetas guardadas.</div>
+            )}
           </div>
         </div>
       </main>
