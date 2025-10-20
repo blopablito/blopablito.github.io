@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import SearchBar from '../components/SearchBar';
-import Filters from '../components/Filters';
-import RecipeCard from '../components/RecipeCard';
+import { useEffect, useState } from "react";
+import Filters from "../components/Filters";
+import RecipeCard from "../components/RecipeCard";
 
-export default function Home() {
-  const [recetas, setRecetas] = useState([]);
-  const [busqueda, setBusqueda] = useState('');
+export default function Favorites() {
+  const [favoritos, setFavoritos] = useState([]);
   const [filtros, setFiltros] = useState({ time: [], diff: [], type: [], rest: [] });
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/recipes')
+    fetch("http://localhost:3001/api/favorites/usuario123")
       .then(res => res.json())
       .then(data => {
         const adaptadas = data.map(r => ({
@@ -23,7 +21,7 @@ export default function Home() {
           restrictions: r.restrictions || [],
           author: r.author || 'Anónimo'
         }));
-        setRecetas(adaptadas);
+        setFavoritos(adaptadas);
       });
   }, []);
 
@@ -34,18 +32,14 @@ export default function Home() {
     });
   };
 
-  const filtrar = r => {
-    const text = busqueda.toLowerCase();
-    return (
-      (r.title.toLowerCase().includes(text) || r.description.toLowerCase().includes(text)) &&
-      filtrarPorTiempo(r.minutes) &&
-      (filtros.diff.length === 0 || filtros.diff.includes(r.difficulty)) &&
-      (filtros.type.length === 0 || filtros.type.some(t => r.meal.includes(t))) &&
-      (filtros.rest.length === 0 || filtros.rest.every(fr => r.restrictions.includes(fr)))
-    );
-  };
+  const filtrar = r => (
+    filtrarPorTiempo(r.minutes) &&
+    (filtros.diff.length === 0 || filtros.diff.includes(r.difficulty)) &&
+    (filtros.type.length === 0 || filtros.type.some(t => r.meal.includes(t))) &&
+    (filtros.rest.length === 0 || filtros.rest.every(fr => r.restrictions.includes(fr)))
+  );
 
-  const recetasFiltradas = recetas.filter(filtrar);
+  const favoritosFiltrados = favoritos.filter(filtrar);
 
   return (
     <>
@@ -56,8 +50,8 @@ export default function Home() {
             <span className="brand-title">SUPER RECETARIO</span>
           </div>
           <nav className="nav">
-            <a href="/" className="nav-btn active">Inicio</a>
-            <a href="/favoritos" className="nav-btn">Favoritos</a>
+            <a href="/" className="nav-btn">Inicio</a>
+            <a href="/favoritos" className="nav-btn active">Favoritos</a>
             <a href="/perfil" className="nav-btn">Perfil</a>
           </nav>
         </div>
@@ -65,20 +59,18 @@ export default function Home() {
 
       <main className="container">
         <div className="shell">
-          <div className="search-section">
-            <SearchBar value={busqueda} onChange={setBusqueda} />
-          </div>
+          <div className="search-banner crema">Mis recetas favoritas</div>
           <div className="layout">
-            <section className="panel recipes-section">
+            <section className="panel recipes-section wide">
               <div className="grid">
-                {recetasFiltradas.length > 0 ? (
-                  recetasFiltradas.map(r => <RecipeCard key={r.id} receta={r} />)
+                {favoritosFiltrados.length > 0 ? (
+                  favoritosFiltrados.map(r => <RecipeCard key={r.id} receta={r} />)
                 ) : (
-                  <div className="empty">No se encontraron recetas.</div>
+                  <div className="empty">Aún no tienes recetas favoritas.</div>
                 )}
               </div>
             </section>
-            <aside className="panel filters">
+            <aside className="panel filters narrow">
               <Filters filtros={filtros} setFiltros={setFiltros} />
             </aside>
           </div>

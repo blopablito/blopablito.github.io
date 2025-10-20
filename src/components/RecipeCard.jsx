@@ -1,33 +1,42 @@
+import { useNavigate } from "react-router-dom";
+
 export default function RecipeCard({ receta }) {
+  const navigate = useNavigate();
+  const dificultad = receta.difficulty === "media" ? "intermedia" : receta.difficulty;
+
+  const guardarFavorito = async (e) => {
+    e.stopPropagation(); // evita que se active el Link
+    e.preventDefault();  // evita que se navegue
+    await fetch("http://localhost:3001/api/favorites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: "usuario123", recipeId: receta.id }),
+    });
+    alert("Receta guardada en favoritos");
+  };
+
   return (
-    <div style={{
-      width: '300px',
-      backgroundColor: '#fff',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      position: 'relative'
-    }}>
-      <img src={receta.imagen} alt={receta.nombre} style={{ height: '180px', objectFit: 'cover' }} />
-      <div style={{ padding: '1rem' }}>
-        <span style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          backgroundColor: '#333',
-          color: '#fff',
-          padding: '0.25rem 0.5rem',
-          borderRadius: '4px',
-          fontSize: '0.75rem'
-        }}>
-          {receta.dificultad}
-        </span>
-        <h3>{receta.nombre}</h3>
-        <p style={{ fontSize: '0.9rem', color: '#555' }}>{receta.descripcion}</p>
-        <div style={{ fontSize: '0.8rem', marginTop: '0.5rem', color: '#777' }}>
-          ⏱️ {receta.tiempo} | 🍽️ {receta.porciones} | 🏷️ {receta.categoria}
+    <div className="card" onClick={() => navigate(`/receta/${receta.id}`)}>
+      <div className="card-inner">
+        <img src={`http://localhost:3001${receta.image}`} alt={receta.title} />
+        <div className="title">{receta.title}</div>
+        <div className="meta">
+          <div className="badge">🕒 {receta.minutes} min</div>
+          <div className="badge">Dificultad: {dificultad}</div>
+        </div>
+        <div className="badges">
+          {receta.restrictions.map(r => (
+            <span key={r} className={`badge ${r === 'vegetariano' ? 'info' : r === 'sinlacteos' || r === 'singluten' ? 'ok' : 'warn'}`}>
+              {r}
+            </span>
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="badge">Tipo: {receta.meal.join(', ')}</div>
+          <button className="btn" aria-label="Favorito" onClick={guardarFavorito}>♡</button>
         </div>
       </div>
     </div>
   );
 }
+

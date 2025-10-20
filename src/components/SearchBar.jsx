@@ -1,16 +1,13 @@
-export default function SearchBar({ onSearch }) {
+export default function SearchBar({ value, onChange }) {
   return (
-    <div style={{ padding: '1rem 2rem' }}>
+    <div className="searchbar panel" role="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm11 3-6-6" stroke="#333" strokeWidth="2" strokeLinecap="round" />
+      </svg>
       <input
-        type="text"
-        placeholder="Buscar recetas..."
-        onChange={(e) => onSearch(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '0.75rem',
-          borderRadius: '8px',
-          border: '1px solid #ccc'
-        }}
+        placeholder="Buscar recetas o ingredientes"
+        value={value}
+        onChange={e => onChange(e.target.value)}
       />
     </div>
   );
