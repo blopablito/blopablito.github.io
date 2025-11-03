@@ -1,27 +1,25 @@
 import { useNavigate } from "react-router-dom";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
-
 export default function RecipeCard({ receta }) {
   const navigate = useNavigate();
-  const dificultad = receta.difficulty === "media" ? "intermedio" : receta.difficulty;
+  const dificultad = receta.difficulty === "media" ? "intermedia" : receta.difficulty;
 
   const guardarFavorito = async (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    await fetch(`${BASE_URL}/api/favorites`, {
+    e.stopPropagation(); // evita que se active el Link
+    e.preventDefault(); // evita que se navegue
+    await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "user123", recipeId: receta._id }),
+      body: JSON.stringify({ userId: "user123", recipeId: receta.id }),
     });
     alert("Receta guardada en favoritos");
   };
 
   return (
-    <div className="card" onClick={() => navigate(`/receta/${receta._id}`)}>
+    <div className="card" onClick={() => navigate(`/receta/${receta.id}`)}>
       <div className="card-inner">
         <img
-          src={`${BASE_URL}${receta.image}`}
+          src={`https://recetario-app-backend.onrender.com${receta.image}`}
           alt={receta.title}
         />
         <div className="title">{receta.title}</div>
@@ -53,16 +51,11 @@ export default function RecipeCard({ receta }) {
           }}
         >
           <div className="badge">Tipo: {receta.meal.join(", ")}</div>
-          <button
-            className="btn"
-            aria-label="Favorito"
-            onClick={guardarFavorito}
-          >
+          <button className="btn" aria-label="Favorito" onClick={guardarFavorito}>
             ♡
           </button>
         </div>
 
-        {/* Ver RDF */}
         <button
           style={{
             backgroundColor: "#a3d9a5",
@@ -74,8 +67,8 @@ export default function RecipeCard({ receta }) {
             marginTop: "10px",
           }}
           onClick={(e) => {
-            e.stopPropagation();
-            window.open(`${BASE_URL}/rdf/${receta._id}`, "_blank");
+            e.stopPropagation(); // evita que se active el navigate
+            window.open(`http://localhost:3001/rdf/${receta.id}`, "_blank");
           }}
         >
           Ver RDF
