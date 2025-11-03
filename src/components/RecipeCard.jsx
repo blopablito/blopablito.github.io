@@ -35,6 +35,24 @@ export default function RecipeCard({ receta }) {
           <div className="badge">Tipo: {receta.meal.join(', ')}</div>
           <button className="btn" aria-label="Favorito" onClick={guardarFavorito}>♡</button>
         </div>
+
+        <button
+          style={{
+            backgroundColor: '#a3d9a5',
+            color: '#000',
+            padding: '8px 12px',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginTop: '10px'
+          }}
+          onClick={(e) => {
+            e.stopPropagation(); // evita que se active el navigate
+            window.open(`http://localhost:3001/rdf/${receta.id}`, '_blank');
+          }}
+        >
+          Ver RDF
+        </button>
       </div>
     </div>
   );
