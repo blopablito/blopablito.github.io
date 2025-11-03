@@ -68,7 +68,7 @@ export default function RecipeCard({ receta }) {
           }}
           onClick={(e) => {
             e.stopPropagation(); // evita que se active el navigate
-            window.open(`http://localhost:3001/rdf/${receta.id}`, "_blank");
+            window.open(`https://recetario-app-backend.onrender.com/rdf/${receta.id}`, '_blank');
           }}
         >
           Ver RDF
