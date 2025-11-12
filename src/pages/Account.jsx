@@ -18,12 +18,18 @@ export default function Account() {
               onChange={(e) => setEmail(e.target.value)}
               style={{ width: "100%", padding: 10, borderRadius: 10, margin: "10px 0" }}
             />
-            <button className="btn" onClick={() => login({ email, role: "user" })}>
-              Ingresar como Usuario
-            </button>
-            <button className="btn" style={{ marginLeft: 10 }} onClick={() => login({ email, role: "editor" })}>
-              Ingresar como Editor
-            </button>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button className="btn" onClick={() => login({ email, role: "user" })}>
+                Ingresar como Usuario
+              </button>
+              <button className="btn" onClick={() => login({ email, role: "editor" })}>
+                Ingresar como Editor
+              </button>
+              {/* Botton para que funciones prueba 1 */}
+              <button className="btn" onClick={() => register({ email, role: "user" })}>
+                Registrarse
+              </button>
+            </div>
           </div>
         </div>
       </div>
