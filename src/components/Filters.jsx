@@ -1,3 +1,4 @@
+// src/components/Filters.jsx
 const TIME = [
   { key: "15-30", label: "15 - 30 min" },
   { key: "30-45", label: "30 - 45 min" },
@@ -6,14 +7,15 @@ const TIME = [
 ];
 const DIFF = ["fácil", "intermedio", "difícil"];
 const TYPES = ["Desayuno", "Almuerzo", "Cena", "Snack"];
-const RESTR = ["Vegetariano", "Sin lacteos", "Sin gluten"];
+// Guardamos en minúsculas para coincidir con backend
+const RESTR = ["vegetariano", "sin lacteos", "sin gluten"];
 
 export default function Filters({ value = {}, onChange }) {
   const v = {
     time: value.time || [],
     difficulty: value.difficulty || [],
     type: value.type || [],
-    restrictions: value.restrictions || [],
+    restrictions: value.restrictions?.map(r => r.toLowerCase()) || [],
   };
 
   const toggle = (group, key) => {
@@ -57,7 +59,10 @@ export default function Filters({ value = {}, onChange }) {
       <div className="group">
         <strong>Restricciones</strong>
         {RESTR.map((r) => (
-          <label key={r}><input type="checkbox" checked={v.restrictions.includes(r)} onChange={()=>toggle("restrictions", r)} /> {r}</label>
+          <label key={r}>
+            <input type="checkbox" checked={v.restrictions.includes(r)} onChange={()=>toggle("restrictions", r)} />
+            {r[0].toUpperCase() + r.slice(1)}
+          </label>
         ))}
       </div>
     </>

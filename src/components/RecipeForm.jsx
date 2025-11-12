@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 
 const DIFFS = ["fácil", "intermedio", "difícil"];
 const TYPES = ["Desayuno", "Almuerzo", "Cena", "Snack"];
-const RESTR = ["Vegetariano", "Sin lacteos", "Sin gluten"];
+// Guardamos en minúsculas para coincidir con backend
+const RESTR = ["vegetariano", "sin lacteos", "sin gluten"];
 
 function toLines(val) {
   return (val || "")
@@ -14,7 +15,7 @@ function toLines(val) {
 function toCSV(val) {
   return (val || "")
     .split(/[,;]\s*|\r?\n/)
-    .map((s) => s.trim())
+    .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
 }
 
@@ -45,7 +46,7 @@ export default function RecipeForm({
     setDescription(initial._description || "");
     setDifficulty((initial.difficulty || "intermedio").toLowerCase());
     setMeal(Array.isArray(initial.meal) ? initial.meal : (initial.meal ? [initial.meal] : []));
-    setRestrictions(initial.restrictions || []);
+    setRestrictions(initial.restrictions?.map(r => r.toLowerCase()) || []);
     setIngredients((initial.ingredients || []).join("\n"));
     setInstructions((initial.instructions || []).join("\n"));
   }, [initial]);
@@ -57,7 +58,6 @@ export default function RecipeForm({
     if (!minutes || Number.isNaN(m) || m <= 0) e.minutes = "Minutos inválidos";
     const s = Number(servings);
     if (!servings || Number.isNaN(s) || s <= 0) e.servings = "Porciones inválidas";
-    // Imagen no requerida al crear (backend la asigna), pero requerida al editar si se cambia
     setErrors(e);
     return Object.keys(e).length === 0;
   }, [title, minutes, servings]);
@@ -78,7 +78,7 @@ export default function RecipeForm({
       servings: Number(servings),
       difficulty: String(difficulty).toLowerCase(),
       category: Array.isArray(meal) ? (meal[0] || "") : "",
-      restrictions: restrictions.slice(),
+      restrictions: restrictions.map(r => r.toLowerCase()),
       ingredients: toLines(ingredients),
       instructions: toLines(instructions),
       description: description.trim(),
@@ -141,14 +141,21 @@ export default function RecipeForm({
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
               {RESTR.map(r => (
                 <label key={r} style={{display:"flex",gap:8,alignItems:"center"}}>
-                  <input type="checkbox" checked={restrictions.includes(r)} onChange={()=>setRestrictions(toggleSet(restrictions, r))}/>
-                  {r}
+                  <input
+                    type="checkbox"
+                    checked={restrictions.includes(r)}
+                    onChange={()=>setRestrictions(toggleSet(restrictions, r))}
+                  />
+                  {r[0].toUpperCase() + r.slice(1)}
                 </label>
               ))}
             </div>
             <details style={{marginTop:6}}>
               <summary>o escribe CSV</summary>
-              <input placeholder="Vegetariano, Sin gluten..." onBlur={(e)=> setRestrictions(toCSV(e.target.value)) } />
+              <input
+                placeholder="vegetariano, sin gluten..."
+                onBlur={(e)=> setRestrictions(toCSV(e.target.value)) }
+              />
             </details>
           </div>
         </div>
