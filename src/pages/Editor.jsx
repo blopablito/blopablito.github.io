@@ -13,7 +13,7 @@ export default function Editor() {
   const [all, setAll] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [editing, setEditing] = useState(null); // objeto receta o null para crear
+  const [editing, setEditing] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -32,12 +32,40 @@ export default function Editor() {
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return all;
-    return all.filter((r) => r.title?.toLowerCase().includes(q));
+    return all.filter((r) => r.name?.toLowerCase().includes(q));
   }, [all, query]);
 
-  async function handleCreate(payload) {
+  function toFormInitial(rec) {
+    if (!rec) return null;
+    return {
+      title: rec.name || "",
+      image: rec.image || "",
+      minutes: String(rec.cookTime ?? ""),
+      difficulty: String(rec.difficulty || "intermedio").toLowerCase(),
+      meal: rec.category ? [rec.category] : [],
+      restrictions: rec.restrictions || [],
+      ingredients: rec.ingredients || [],
+      instructions: rec.instructions || [],
+    };
+  }
+
+  function mapFormToPayload(payload) {
+    // payload viene de RecipeForm
+    return {
+      name: payload.title.trim(),
+      image: payload.image.trim(),
+      cookTime: Number(payload.minutes),
+      difficulty: String(payload.difficulty).toLowerCase(),
+      category: Array.isArray(payload.meal) ? (payload.meal[0] || "") : "", // backend usa categoría única
+      restrictions: payload.restrictions || [],
+      ingredients: payload.ingredients || [],
+      instructions: payload.instructions || [],
+    };
+  }
+
+  async function handleCreate(formPayload) {
     try {
-      const created = await createRecipe(payload);
+      const created = await createRecipe(mapFormToPayload(formPayload));
       setAll((prev) => [created, ...prev]);
       setEditing(null);
       alert("Receta creada");
@@ -47,9 +75,9 @@ export default function Editor() {
     }
   }
 
-  async function handleUpdate(id, payload) {
+  async function handleUpdate(id, formPayload) {
     try {
-      const updated = await updateRecipe(id, payload);
+      const updated = await updateRecipe(id, mapFormToPayload(formPayload));
       setAll((prev) => prev.map((r) => (String(r.id) === String(id) ? updated : r)));
       setEditing(null);
       alert("Receta actualizada");
@@ -60,7 +88,6 @@ export default function Editor() {
   }
 
   async function handleDelete(id) {
-    // correcion del eror prueba 1
     if (!window.confirm("¿Eliminar esta receta?")) return;
     try {
       await deleteRecipe(id);
@@ -95,11 +122,9 @@ export default function Editor() {
     <div id="editor" className="container">
       <h1 className="page-title">Editor de Recetas</h1>
 
-      {/* Barra superior: nuevo + búsqueda */}
       <EditorToolbar onNew={() => setEditing({})} query={query} setQuery={setQuery} />
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: 24, alignItems: "start" }}>
-        {/* Lista */}
         <section className="panel">
           <div className="panel-inner">
             {loading ? (
@@ -126,13 +151,13 @@ export default function Editor() {
                     >
                       <img
                         src={src}
-                        alt={r.title}
+                        alt={r.name}
                         style={{ width: 64, height: 48, objectFit: "cover", borderRadius: 8 }}
                       />
                       <div>
-                        <div style={{ fontWeight: 800, color: "var(--coffee)" }}>{r.title}</div>
+                        <div style={{ fontWeight: 800, color: "var(--coffee)" }}>{r.name}</div>
                         <small style={{ color: "var(--muted)" }}>
-                          ⏱ {r.minutes} min · {r.difficulty}
+                          ⏱ {r.cookTime} min · {r.difficulty}
                         </small>
                       </div>
                       <div style={{ display: "flex", gap: 8 }}>
@@ -151,11 +176,10 @@ export default function Editor() {
           </div>
         </section>
 
-        {/* Formulario (crear/editar) */}
         <aside>
           {editing ? (
             <RecipeForm
-              initial={editing && editing.id ? editing : null}
+              initial={editing?.id ? toFormInitial(editing) : null}
               onCancel={() => setEditing(null)}
               onSubmit={(payload) => (editing?.id ? handleUpdate(editing.id, payload) : handleCreate(payload))}
               submitLabel={editing?.id ? "Actualizar" : "Crear receta"}

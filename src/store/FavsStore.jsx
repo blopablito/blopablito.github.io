@@ -5,7 +5,7 @@ import {
   removeFavoriteFromServer,
 } from "../services/api";
 
-const KEY = "sr_favs_v1"; // mapeo por usuario: { [userId]: { ids: string[], items: { [id]: recipe } } }
+const KEY = "sr_favs_v1"; // { [userId]: { ids: string[], items: { [id]: recipe } } }
 
 function loadAll() {
   try {
@@ -18,7 +18,6 @@ function loadAll() {
 function saveAll(data) {
   localStorage.setItem(KEY, JSON.stringify(data));
 }
-
 function ensureUserNode(userId) {
   const all = loadAll();
   if (!all[userId]) all[userId] = { ids: [], items: {} };
@@ -42,9 +41,10 @@ export function isFav(userId, id) {
 }
 
 export async function toggleFav(userId, recipe) {
-  if (!userId || !recipe?.id) return { ids: getFavIds(userId) };
+  const recipeId = recipe?.id ?? recipe?._id;
+  if (!userId || !recipeId) return { ids: getFavIds(userId) };
 
-  const id = String(recipe.id);
+  const id = String(recipeId);
   const all = ensureUserNode(userId);
   const node = all[userId];
 
@@ -53,18 +53,16 @@ export async function toggleFav(userId, recipe) {
     node.ids = node.ids.filter((x) => x !== id);
     delete node.items[id];
     saveAll(all);
-    // intento de sync (ignorado si el backend aún no lo implementa)
     try { await removeFavoriteFromServer(userId, id); } catch {}
   } else {
     node.ids.unshift(id);
-    node.items[id] = recipe;
+    node.items[id] = { ...recipe, id }; // asegurar id presente
     saveAll(all);
     try { await addFavoriteToServer(userId, id); } catch {}
   }
   return { ids: node.ids.slice(), items: { ...node.items } };
 }
 
-// opcional: traer favoritos del server y fusionar
 export async function syncFavorites(userId) {
   if (!userId) return;
   try {
@@ -74,15 +72,16 @@ export async function syncFavorites(userId) {
     const all = ensureUserNode(userId);
     const node = all[userId];
 
-    const serverIds = server.map((r) => String(r.id));
+    const serverIds = server.map((r) => String(r.id ?? r._id));
     const set = new Set([...serverIds, ...node.ids]);
     node.ids = Array.from(set);
 
-    // si el server devolvió objetos completos:
-    for (const r of server) node.items[String(r.id)] = r;
+    for (const r of server) {
+      const rid = String(r.id ?? r._id);
+      node.items[rid] = { ...r, id: rid };
+    }
 
     saveAll(all);
-  } catch {
-    // silenciar: endpoint puede no existir aún
-  }
+  } catch {}
 }
+

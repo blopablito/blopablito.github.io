@@ -1,3 +1,4 @@
+// src/services/api.js
 const BASE_URL = process.env.REACT_APP_API_BASE || "https://recetario-app-backend.onrender.com";
 
 async function http(path, { method = "GET", headers, body } = {}) {
@@ -16,26 +17,32 @@ async function http(path, { method = "GET", headers, body } = {}) {
   return ct.includes("application/json") ? res.json() : res.text();
 }
 
-// Normalizador fiel al modelo del backend
+function absolutizeImage(image) {
+  if (!image) return "";
+  if (/^https?:\/\//i.test(image)) return image;
+  // si viene como "/assets/..." del backend, convertir a absoluta
+  if (image.startsWith("/")) return `${BASE_URL}${image}`;
+  return image;
+}
+
 function mapRecipe(r = {}) {
   return {
-    _id: String(r._id),
+    id: String(r._id ?? r.id),          // normaliza a "id"
     name: r.name,
     description: r.description,
-    image: r.image, // ej: "/assets/images/recipes/000001.jpg"
+    image: absolutizeImage(r.image),     // asegura URL válida
     cookTime: Number(r.cookTime),
     servings: r.servings,
-    difficulty: String(r.difficulty).toLowerCase(), // fácil, intermedio, difícil
-    category: r.category,
-    restrictions: r.restrictions ?? [],
-    ingredients: r.ingredients ?? [],
-    instructions: r.instructions ?? [],
+    difficulty: String(r.difficulty || "").toLowerCase(), // fácil/intermedio/difícil
+    category: r.category || "",          // único valor para filtros tipo
+    restrictions: Array.isArray(r.restrictions) ? r.restrictions : [],
+    ingredients: Array.isArray(r.ingredients) ? r.ingredients : [],
+    instructions: Array.isArray(r.instructions) ? r.instructions : [],
   };
 }
 
 const mapList = (arr) => (Array.isArray(arr) ? arr.map(mapRecipe) : []);
 
-// Endpoints
 export async function getRecipes() {
   const data = await http("/api/recipes");
   return mapList(data);

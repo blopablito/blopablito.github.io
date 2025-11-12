@@ -1,8 +1,7 @@
+// src/pages/Recipe.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getRecipeById } from "../services/api";
-
-const BASE_URL = "https://recetario-app-backend.onrender.com";
 
 export default function Recipe() {
   const { id } = useParams();
@@ -24,13 +23,12 @@ export default function Recipe() {
 
   if (loading) return <div className="container">Cargando...</div>;
   if (!receta) return <div className="container">Receta no encontrada</div>;
-  const imgSrc = `${BASE_URL}${receta.image}`;
 
   return (
     <div id="recipe" className="container">
       <div className="hero">
         <div className="image">
-          <img src={imgSrc} alt={receta.name} style={{ width:"100%", borderRadius:18 }} />
+          <img src={receta.image} alt={receta.name} style={{ width:"100%", borderRadius:18 }} />
         </div>
         <div className="panel">
           <div className="panel-inner">

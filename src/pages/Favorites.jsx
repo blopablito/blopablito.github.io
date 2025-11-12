@@ -1,6 +1,7 @@
+// src/pages/Favorites.jsx
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../store/authContext";
-import { getFavItems, toggleFav } from "../store/FavsStore";
+import { getFavItems, toggleFav } from "../store/favsStore";
 import RecipeCard from "../components/RecipeCard";
 
 export default function Favorites() {
@@ -26,7 +27,7 @@ export default function Favorites() {
       ) : (
         <div className="recipes-grid">
           {favs.map((r) => (
-            <RecipeCard key={r.id} receta={r} onFav={handleFav} />
+            <RecipeCard key={r.id} receta={r} onFav={handleFav} isFav />
           ))}
         </div>
       )}

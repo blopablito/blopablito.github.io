@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import { useEffect, useMemo, useState, useContext } from "react";
 import Board from "../components/Board";
 import SearchBar from "../components/SearchBar";
@@ -5,7 +6,7 @@ import Filters from "../components/Filters";
 import RecipeCard from "../components/RecipeCard";
 import { getRecipes } from "../services/api";
 import { AuthContext } from "../store/authContext";
-import { toggleFav, getFavIds } from "../store/FavsStore";
+import { toggleFav, getFavIds } from "../store/favsStore";
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
@@ -37,12 +38,14 @@ export default function Home() {
     let list = recipes;
     const q = query.trim().toLowerCase();
 
-    if (q) list = list.filter((r) =>
-      r.name?.toLowerCase().includes(q) ||
-      r.ingredients?.some?.((i) => i.toLowerCase().includes(q))
-    );
+    if (q) {
+      list = list.filter((r) =>
+        r.name?.toLowerCase().includes(q) ||
+        r.ingredients?.some?.((i) => i.toLowerCase().includes(q))
+      );
+    }
 
-    if (filters.time?.length)
+    if (filters.time?.length) {
       list = list.filter((r) => {
         const t = Number(r.cookTime);
         return filters.time.some((f) => {
@@ -53,19 +56,23 @@ export default function Home() {
           return true;
         });
       });
+    }
 
-    if (filters.difficulty?.length)
+    if (filters.difficulty?.length) {
       list = list.filter((r) =>
-        filters.difficulty.includes(r.difficulty?.toLowerCase?.())
+        filters.difficulty.includes(String(r.difficulty).toLowerCase())
       );
+    }
 
-    if (filters.type?.length)
+    if (filters.type?.length) {
       list = list.filter((r) => filters.type.includes(r.category));
+    }
 
-    if (filters.restrictions?.length)
+    if (filters.restrictions?.length) {
       list = list.filter((r) =>
         filters.restrictions.every((s) => r.restrictions?.includes?.(s))
       );
+    }
 
     return list;
   }, [recipes, query, filters]);
@@ -99,10 +106,10 @@ export default function Home() {
         <div className="recipes-grid">
           {filtered.map((rec) => (
             <RecipeCard
-              key={rec._id}
+              key={rec.id}
               receta={rec}
               onFav={handleFav}
-              isFav={favIds.includes(String(rec._id))}
+              isFav={favIds.includes(String(rec.id))}
             />
           ))}
         </div>
