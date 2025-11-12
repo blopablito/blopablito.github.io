@@ -1,4 +1,12 @@
-// ...importaciones
+import { useEffect, useMemo, useState, useContext } from "react";
+import Board from "../components/Board";
+import SearchBar from "../components/SearchBar";
+import Filters from "../components/Filters";
+import RecipeCard from "../components/RecipeCard";
+import { getRecipes } from "../services/api";
+import { AuthContext } from "../store/authContext";
+import { toggleFav, getFavIds } from "../store/FavsStore";
+
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [query, setQuery] = useState("");
@@ -52,9 +60,7 @@ export default function Home() {
       );
 
     if (filters.type?.length)
-      list = list.filter((r) =>
-        filters.type.includes(r.category)
-      );
+      list = list.filter((r) => filters.type.includes(r.category));
 
     if (filters.restrictions?.length)
       list = list.filter((r) =>
