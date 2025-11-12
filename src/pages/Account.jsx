@@ -25,7 +25,7 @@ export default function Account() {
               <button className="btn" onClick={() => login({ email, role: "editor" })}>
                 Ingresar como Editor
               </button>
-              {/* Botton para que funciones prueba 1 */}
+              {/* Botón para registrar usuario prueba 2 */}
               <button className="btn" onClick={() => register({ email, role: "user" })}>
                 Registrarse
               </button>
@@ -52,6 +52,14 @@ export default function Account() {
               Cambiar a Usuario
             </button>
           )}
+          {/* Uso adicional de register en bloque logueado */}
+          <button
+            className="btn"
+            style={{ marginLeft: 10 }}
+            onClick={() => register({ email: user.email, role })}
+          >
+            Re-registrar
+          </button>
         </div>
       </div>
     </div>
