@@ -60,7 +60,8 @@ export default function Editor() {
   }
 
   async function handleDelete(id) {
-    if (!confirm("¿Eliminar esta receta?")) return;
+    // correcion del eror prueba 1
+    if (!window.confirm("¿Eliminar esta receta?")) return;
     try {
       await deleteRecipe(id);
       setAll((prev) => prev.filter((r) => String(r.id) !== String(id)));
