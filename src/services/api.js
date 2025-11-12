@@ -17,21 +17,21 @@ async function http(path, { method = "GET", headers, body } = {}) {
   return ct.includes("application/json") ? res.json() : res.text();
 }
 
-// Normalizador
 function mapRecipe(r = {}) {
-  const id = r.id ?? r._id ?? r.recipeId ?? r.slug ?? String(Math.random());
+  const id = r._id ?? r.id ?? r.recipeId ?? r.slug ?? String(Math.random());
   return {
-    id: String(id),
-    title: r.title ?? r.name ?? "Receta",
+    _id: String(id),
+    name: r.name ?? r.title ?? "Receta",
     image: r.image ?? r.img ?? r.photo ?? "",
-    minutes: Number(r.minutes ?? r.time ?? r.duration ?? 0),
+    cookTime: Number(r.cookTime ?? r.minutes ?? r.time ?? 0),
     difficulty: String(r.difficulty ?? r.level ?? "intermedio").toLowerCase(),
-    meal: Array.isArray(r.meal) ? r.meal : (r.meal ? [r.meal] : []),
+    category: r.category ?? r.meal ?? "Sin categoría",
     restrictions: r.restrictions ?? r.tags ?? [],
     ingredients: r.ingredients ?? r.ingredientes ?? [],
     instructions: r.instructions ?? r.pasos ?? [],
   };
 }
+
 const mapList = (arr) => (Array.isArray(arr) ? arr.map(mapRecipe) : []);
 
 // Helper que prueba /recipes y si falla prueba /api/recipes
