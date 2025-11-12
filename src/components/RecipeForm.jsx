@@ -27,11 +27,13 @@ export default function RecipeForm({
   const [title, setTitle] = useState("");
   const [image, setImage] = useState("");
   const [minutes, setMinutes] = useState("");
+  const [servings, setServings] = useState("1");
+  const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("intermedio");
   const [meal, setMeal] = useState([]);
   const [restrictions, setRestrictions] = useState([]);
-  const [ingredients, setIngredients] = useState("");    // textarea (líneas)
-  const [instructions, setInstructions] = useState("");  // textarea (líneas)
+  const [ingredients, setIngredients] = useState("");
+  const [instructions, setInstructions] = useState("");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -39,6 +41,8 @@ export default function RecipeForm({
     setTitle(initial.title || "");
     setImage(initial.image || "");
     setMinutes(String(initial.minutes ?? ""));
+    setServings(String(initial._servings ?? "1"));
+    setDescription(initial._description || "");
     setDifficulty((initial.difficulty || "intermedio").toLowerCase());
     setMeal(Array.isArray(initial.meal) ? initial.meal : (initial.meal ? [initial.meal] : []));
     setRestrictions(initial.restrictions || []);
@@ -51,10 +55,12 @@ export default function RecipeForm({
     if (!title.trim()) e.title = "Título requerido";
     const m = Number(minutes);
     if (!minutes || Number.isNaN(m) || m <= 0) e.minutes = "Minutos inválidos";
-    if (!image.trim()) e.image = "Imagen (URL) requerida";
+    const s = Number(servings);
+    if (!servings || Number.isNaN(s) || s <= 0) e.servings = "Porciones inválidas";
+    // Imagen no requerida al crear (backend la asigna), pero requerida al editar si se cambia
     setErrors(e);
     return Object.keys(e).length === 0;
-  }, [title, minutes, image]);
+  }, [title, minutes, servings]);
 
   function toggleSet(arr, val) {
     const s = new Set(arr);
@@ -66,14 +72,16 @@ export default function RecipeForm({
     e.preventDefault();
     if (!valid) return;
     const payload = {
-      title: title.trim(),
-      image: image.trim(),
-      minutes: Number(minutes),
+      name: title.trim(),
+      image: image.trim(), // opcional en update
+      cookTime: Number(minutes),
+      servings: Number(servings),
       difficulty: String(difficulty).toLowerCase(),
-      meal: meal.slice(),
+      category: Array.isArray(meal) ? (meal[0] || "") : "",
       restrictions: restrictions.slice(),
       ingredients: toLines(ingredients),
       instructions: toLines(instructions),
+      description: description.trim(),
     };
     onSubmit?.(payload);
   };
@@ -88,16 +96,25 @@ export default function RecipeForm({
         </div>
 
         <div style={{ display:"grid", gap:8 }}>
-          <label><strong>Imagen (URL)</strong></label>
-          <input value={image} onChange={(e)=>setImage(e.target.value)} placeholder="https://..." />
-          {errors.image && <small style={{color:"var(--danger)"}}>{errors.image}</small>}
+          <label><strong>Descripción</strong></label>
+          <textarea rows={4} value={description} onChange={(e)=>setDescription(e.target.value)} placeholder="Breve descripción de la receta" />
         </div>
 
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+        <div style={{ display:"grid", gap:8 }}>
+          <label><strong>Imagen (URL)</strong> <small>(opcional)</small></label>
+          <input value={image} onChange={(e)=>setImage(e.target.value)} placeholder="https://..." />
+        </div>
+
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16 }}>
           <div>
             <label><strong>Minutos</strong></label>
             <input type="number" min="1" value={minutes} onChange={(e)=>setMinutes(e.target.value)} />
             {errors.minutes && <small style={{color:"var(--danger)"}}>{errors.minutes}</small>}
+          </div>
+          <div>
+            <label><strong>Porciones</strong></label>
+            <input type="number" min="1" value={servings} onChange={(e)=>setServings(e.target.value)} />
+            {errors.servings && <small style={{color:"var(--danger)"}}>{errors.servings}</small>}
           </div>
           <div>
             <label><strong>Dificultad</strong></label>

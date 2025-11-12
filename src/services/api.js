@@ -20,21 +20,28 @@ async function http(path, { method = "GET", headers, body } = {}) {
 function absolutizeImage(image) {
   if (!image) return "";
   if (/^https?:\/\//i.test(image)) return image;
-  // si viene como "/assets/..." del backend, convertir a absoluta
   if (image.startsWith("/")) return `${BASE_URL}${image}`;
   return image;
 }
 
+function capitalizeDifficulty(d) {
+  const x = String(d || "").toLowerCase();
+  if (x === "facil" || x === "fácil") return "Fácil";
+  if (x === "intermedio") return "Intermedio";
+  if (x === "dificil" || x === "difícil") return "Difícil";
+  return "Intermedio";
+}
+
 function mapRecipe(r = {}) {
   return {
-    id: String(r._id ?? r.id),          // normaliza a "id"
+    id: String(r._id ?? r.id),
     name: r.name,
     description: r.description,
-    image: absolutizeImage(r.image),     // asegura URL válida
+    image: absolutizeImage(r.image),
     cookTime: Number(r.cookTime),
-    servings: r.servings,
-    difficulty: String(r.difficulty || "").toLowerCase(), // fácil/intermedio/difícil
-    category: r.category || "",          // único valor para filtros tipo
+    servings: Number(r.servings),
+    difficulty: String(r.difficulty || "").toLowerCase(), // para filtros
+    category: r.category || "",
     restrictions: Array.isArray(r.restrictions) ? r.restrictions : [],
     ingredients: Array.isArray(r.ingredients) ? r.ingredients : [],
     instructions: Array.isArray(r.instructions) ? r.instructions : [],
@@ -53,13 +60,37 @@ export async function getRecipeById(id) {
   return mapRecipe(data);
 }
 
+// Crear: omite "image" para que el backend asigne /assets/images/recipes/<id>.jpg
 export async function createRecipe(payload) {
-  const data = await http(`/api/recipes`, { method: "POST", body: payload });
+  const body = {
+    name: payload.name,
+    description: payload.description ?? "",
+    cookTime: Number(payload.cookTime),
+    servings: Number(payload.servings ?? 1),
+    difficulty: capitalizeDifficulty(payload.difficulty),
+    category: payload.category || "",
+    restrictions: payload.restrictions || [],
+    ingredients: payload.ingredients || [],
+    instructions: payload.instructions || [],
+  };
+  const data = await http(`/api/recipes`, { method: "POST", body });
   return mapRecipe(data);
 }
 
 export async function updateRecipe(id, payload) {
-  const data = await http(`/api/recipes/${id}`, { method: "PUT", body: payload });
+  const body = {
+    name: payload.name,
+    description: payload.description ?? "",
+    cookTime: Number(payload.cookTime),
+    servings: Number(payload.servings ?? 1),
+    difficulty: capitalizeDifficulty(payload.difficulty),
+    category: payload.category || "",
+    restrictions: payload.restrictions || [],
+    ingredients: payload.ingredients || [],
+    instructions: payload.instructions || [],
+    image: payload.image || undefined, // opcionalmente permitir editar imagen
+  };
+  const data = await http(`/api/recipes/${id}`, { method: "PUT", body });
   return mapRecipe(data);
 }
 

@@ -1,52 +1,23 @@
-// src/pages/Recipe.jsx
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getRecipeById } from "../services/api";
+// src/components/RecipeCard.jsx
+import { resolveImageUrl } from "../services/images";
+import { Link } from "react-router-dom";
 
-export default function Recipe() {
-  const { id } = useParams();
-  const [receta, setReceta] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getRecipeById(id);
-        setReceta(data);
-      } catch (e) {
-        console.error("Error cargando receta:", e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [id]);
-
-  if (loading) return <div className="container">Cargando...</div>;
-  if (!receta) return <div className="container">Receta no encontrada</div>;
-
+export default function RecipeCard({ receta, onFav, isFav }) {
+  const src = resolveImageUrl(receta.image);
   return (
-    <div id="recipe" className="container">
-      <div className="hero">
-        <div className="image">
-          <img src={receta.image} alt={receta.name} style={{ width:"100%", borderRadius:18 }} />
-        </div>
-        <div className="panel">
-          <div className="panel-inner">
-            <h1 className="page-title">{receta.name}</h1>
-            <p><strong>Tiempo:</strong> {receta.cookTime} min</p>
-            <p><strong>Dificultad:</strong> {receta.difficulty}</p>
-            <p><strong>Tipo:</strong> {receta.category}</p>
-            <h3 className="section-title">Ingredientes</h3>
-            <ul>
-              {receta.ingredients?.map((i, idx) => <li key={idx}>{i}</li>)}
-            </ul>
-            <h3 className="section-title">Preparación</h3>
-            <ol>
-              {receta.instructions?.map((p, idx) => <li key={idx}>{p}</li>)}
-            </ol>
-          </div>
+    <article className="recipe-card">
+      <img src={src} alt={receta.name} className="recipe-img" />
+      <div className="recipe-body">
+        <h3 className="recipe-title">
+          <Link to={`/receta/${receta.id}`}>{receta.name}</Link>
+        </h3>
+        <div className="recipe-meta">⏱ {receta.cookTime} min · {receta.difficulty}</div>
+        <div className="recipe-actions">
+          <button className={isFav ? "btn fav active" : "btn fav"} onClick={() => onFav(receta)}>
+            {isFav ? "★" : "☆"} Favorito
+          </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

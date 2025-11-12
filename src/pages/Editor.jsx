@@ -41,25 +41,28 @@ export default function Editor() {
       title: rec.name || "",
       image: rec.image || "",
       minutes: String(rec.cookTime ?? ""),
-      difficulty: String(rec.difficulty || "intermedio").toLowerCase(),
+      difficulty: String(rec.difficulty || "intermedio"),
       meal: rec.category ? [rec.category] : [],
       restrictions: rec.restrictions || [],
       ingredients: rec.ingredients || [],
       instructions: rec.instructions || [],
+      _description: rec.description || "",
+      _servings: String(rec.servings ?? "1"),
     };
   }
 
   function mapFormToPayload(payload) {
-    // payload viene de RecipeForm
     return {
-      name: payload.title.trim(),
-      image: payload.image.trim(),
-      cookTime: Number(payload.minutes),
+      name: payload.name ?? payload.title?.trim() ?? "Sin título",
+      image: payload.image?.trim(), // opcional en update
+      cookTime: Number(payload.cookTime ?? payload.minutes),
       difficulty: String(payload.difficulty).toLowerCase(),
-      category: Array.isArray(payload.meal) ? (payload.meal[0] || "") : "", // backend usa categoría única
+      category: Array.isArray(payload.meal) ? (payload.meal[0] || "") : "",
       restrictions: payload.restrictions || [],
       ingredients: payload.ingredients || [],
       instructions: payload.instructions || [],
+      description: payload.description ?? payload._description ?? "",
+      servings: Number(payload.servings ?? payload._servings ?? 1),
     };
   }
 
@@ -106,12 +109,8 @@ export default function Editor() {
         <div className="panel">
           <div className="panel-inner" style={{ display: "grid", gap: 10 }}>
             <h1 className="page-title">Editor</h1>
-            <p>
-              Necesitas el rol <strong>editor</strong> para gestionar recetas.
-            </p>
-            <button className="btn" onClick={() => setRole("editor")}>
-              Cambiar a Editor
-            </button>
+            <p>Necesitas el rol <strong>editor</strong> para gestionar recetas.</p>
+            <button className="btn" onClick={() => setRole("editor")}>Cambiar a Editor</button>
           </div>
         </div>
       </div>
@@ -161,12 +160,8 @@ export default function Editor() {
                         </small>
                       </div>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <button className="btn-outline" onClick={() => setEditing(r)}>
-                          Editar
-                        </button>
-                        <button className="btn-outline" onClick={() => handleDelete(r.id)}>
-                          Eliminar
-                        </button>
+                        <button className="btn-outline" onClick={() => setEditing(r)}>Editar</button>
+                        <button className="btn-outline" onClick={() => handleDelete(r.id)}>Eliminar</button>
                       </div>
                     </li>
                   );

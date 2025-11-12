@@ -1,10 +1,4 @@
-// src/store/favsStore.js
-import {
-  addFavoriteToServer,
-  getFavoritesFromServer,
-  removeFavoriteFromServer,
-} from "../services/api";
-
+// src/store/FavsStore.js
 const KEY = "sr_favs_v1"; // { [userId]: { ids: string[], items: { [id]: recipe } } }
 
 function loadAll() {
@@ -52,36 +46,10 @@ export async function toggleFav(userId, recipe) {
   if (exists) {
     node.ids = node.ids.filter((x) => x !== id);
     delete node.items[id];
-    saveAll(all);
-    try { await removeFavoriteFromServer(userId, id); } catch {}
   } else {
     node.ids.unshift(id);
-    node.items[id] = { ...recipe, id }; // asegurar id presente
-    saveAll(all);
-    try { await addFavoriteToServer(userId, id); } catch {}
+    node.items[id] = { ...recipe, id };
   }
+  saveAll(all);
   return { ids: node.ids.slice(), items: { ...node.items } };
 }
-
-export async function syncFavorites(userId) {
-  if (!userId) return;
-  try {
-    const server = await getFavoritesFromServer(userId);
-    if (!Array.isArray(server)) return;
-
-    const all = ensureUserNode(userId);
-    const node = all[userId];
-
-    const serverIds = server.map((r) => String(r.id ?? r._id));
-    const set = new Set([...serverIds, ...node.ids]);
-    node.ids = Array.from(set);
-
-    for (const r of server) {
-      const rid = String(r.id ?? r._id);
-      node.items[rid] = { ...r, id: rid };
-    }
-
-    saveAll(all);
-  } catch {}
-}
-
