@@ -38,13 +38,13 @@ export default function Home() {
     const q = query.trim().toLowerCase();
 
     if (q) list = list.filter((r) =>
-      r.title?.toLowerCase().includes(q) ||
+      r.name?.toLowerCase().includes(q) ||
       r.ingredients?.some?.((i) => i.toLowerCase().includes(q))
     );
 
     if (filters.time?.length)
       list = list.filter((r) => {
-        const t = Number(r.minutes);
+        const t = Number(r.cookTime);
         return filters.time.some((f) => {
           if (f === "15-30") return t >= 15 && t <= 30;
           if (f === "30-45") return t > 30 && t <= 45;
@@ -62,7 +62,7 @@ export default function Home() {
     if (filters.type?.length)
       list = list.filter((r) =>
         filters.type.some((t) =>
-          Array.isArray(r.meal) ? r.meal.includes(t) : r.meal === t
+          Array.isArray(r.category) ? r.category.includes(t) : r.category === t
         )
       );
 
@@ -103,10 +103,10 @@ export default function Home() {
         <div className="recipes-grid">
           {filtered.map((rec) => (
             <RecipeCard
-              key={rec.id}
+              key={rec._id}
               receta={rec}
               onFav={handleFav}
-              isFav={favIds.includes(String(rec.id))}
+              isFav={favIds.includes(String(rec._id))}
             />
           ))}
         </div>

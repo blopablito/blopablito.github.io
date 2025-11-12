@@ -29,13 +29,14 @@ export default function Recipe() {
     <div id="recipe" className="container">
       <div className="hero">
         <div className="image">
-          <img src={imgSrc} alt={receta.title} style={{ width:"100%", borderRadius:18 }} />
+          <img src={imgSrc} alt={receta.name} style={{ width:"100%", borderRadius:18 }} />
         </div>
         <div className="panel">
           <div className="panel-inner">
-            <h1 className="page-title">{receta.title}</h1>
-            <p><strong>Tiempo:</strong> {receta.minutes} min</p>
+            <h1 className="page-title">{receta.name}</h1>
+            <p><strong>Tiempo:</strong> {receta.cookTime} min</p>
             <p><strong>Dificultad:</strong> {receta.difficulty}</p>
+            <p><strong>Tipo:</strong> {receta.category}</p>
             <h3 className="section-title">Ingredientes</h3>
             <ul>
               {receta.ingredients?.map((i, idx) => <li key={idx}>{i}</li>)}
