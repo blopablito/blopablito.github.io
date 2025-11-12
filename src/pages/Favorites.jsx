@@ -1,81 +1,35 @@
-import { useEffect, useState } from "react";
-import Filters from "../components/Filters";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../store/authContext";
+import { getFavItems, toggleFav } from "../store/FavsStore";
 import RecipeCard from "../components/RecipeCard";
 
 export default function Favorites() {
-  const [favoritos, setFavoritos] = useState([]);
-  const [filtros, setFiltros] = useState({ time: [], diff: [], type: [], rest: [] });
+  const { user } = useContext(AuthContext);
+  const [favs, setFavs] = useState([]);
 
   useEffect(() => {
-    fetch("https://recetario-app-backend.onrender.com/api/favorites/user123")
-      .then(res => res.json())
-      .then(data => {
-        const adaptadas = data.map(r => ({
-          id: r._id,
-          title: r.name,
-          description: r.description,
-          image: r.image,
-          minutes: r.cookTime,
-          difficulty: r.difficulty.toLowerCase() === "media" ? "intermedia" : r.difficulty.toLowerCase(),
-          meal: [r.category.toLowerCase()],
-          restrictions: r.restrictions || [],
-          author: r.author || 'Anónimo'
-        }));
-        setFavoritos(adaptadas);
-      });
-  }, []);
+    if (user) setFavs(getFavItems(user.id));
+  }, [user]);
 
-  const filtrarPorTiempo = (minutos) => {
-    return filtros.time.length === 0 || filtros.time.some(rango => {
-      const [min, max] = rango.split("-").map(Number);
-      return minutos >= min && minutos <= max;
-    });
+  const handleFav = (r) => {
+    const { items } = toggleFav(user.id, r);
+    setFavs(Object.values(items));
   };
 
-  const filtrar = r => (
-    filtrarPorTiempo(r.minutes) &&
-    (filtros.diff.length === 0 || filtros.diff.includes(r.difficulty)) &&
-    (filtros.type.length === 0 || filtros.type.some(t => r.meal.includes(t))) &&
-    (filtros.rest.length === 0 || filtros.rest.every(fr => r.restrictions.includes(fr)))
-  );
-
-  const favoritosFiltrados = favoritos.filter(filtrar);
+  if (!user) return <div className="container">Inicia sesión para ver tus favoritos</div>;
 
   return (
-    <>
-      <header>
-        <div className="header-inner">
-          <div className="brand">
-            <span className="logo"></span>
-            <span className="brand-title">SUPER RECETARIO</span>
-          </div>
-          <nav className="nav">
-            <a href="/" className="nav-btn">Inicio</a>
-            <a href="/favoritos" className="nav-btn active">Favoritos</a>
-            <a href="/perfil" className="nav-btn">Perfil</a>
-          </nav>
+    <div id="favorites" className="container">
+      <h1 className="page-title">Mis Favoritos</h1>
+      {favs.length === 0 ? (
+        <div className="empty">No tienes recetas favoritas aún.</div>
+      ) : (
+        <div className="recipes-grid">
+          {favs.map((r) => (
+            <RecipeCard key={r.id} receta={r} onFav={handleFav} />
+          ))}
         </div>
-      </header>
-
-      <main className="container">
-        <div className="shell">
-          <div className="search-banner crema">Mis recetas favoritas</div>
-          <div className="layout">
-            <section className="panel recipes-section wide">
-              <div className="grid">
-                {favoritosFiltrados.length > 0 ? (
-                  favoritosFiltrados.map(r => <RecipeCard key={r.id} receta={r} />)
-                ) : (
-                  <div className="empty">Aún no tienes recetas favoritas.</div>
-                )}
-              </div>
-            </section>
-            <aside className="panel filters narrow">
-              <Filters filtros={filtros} setFiltros={setFiltros} />
-            </aside>
-          </div>
-        </div>
-      </main>
-    </>
+      )}
+    </div>
   );
 }

@@ -1,0 +1,29 @@
+/* src/styles/theme.css */
+/* Tokens de color (paleta del mockup) */
+:root{
+  --lemonade:    #FBD271;  /* acentos suaves / chips / resaltados */
+  --sea-blue:    #0F4E77;  /* botones primarios / links / foco */
+  --matcha:      #89A377;  /* ok / éxito / badges verdes */
+  --honey:       #E7BD8B;  /* panel crema cálido */
+  --coffee:      #372516;  /* texto fuerte / títulos */
+
+  /* Derivados coherentes */
+  --bg:          #F5EFE7;  /* base de fondo, detrás del patrón */
+  --ink:         #2A221C;  /* texto general (ligeramente más claro que coffee) */
+  --muted:       #6B5C53;  /* texto secundario */
+  --paper:       #F2E6D7;  /* tarjetas / contenedores */
+  --cream:       var(--honey);
+
+  --primary:     var(--sea-blue);
+  --accent:      var(--lemonade);
+  --ok:          var(--matcha);
+  --danger:      #C94B45;
+
+  --radius:      14px;
+  --radius-lg:   22px;
+  --radius-xl:   32px;
+  --shadow-sm:   0 6px 16px rgba(0,0,0,.08);
+  --shadow:      0 12px 28px rgba(0,0,0,.12);
+  --shadow-lg:   0 18px 40px rgba(0,0,0,.16);
+}
+

@@ -1,99 +1,52 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getRecipeById } from "../services/api";
+import { resolveImageUrl } from "../services/images";
 
 export default function Recipe() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [receta, setReceta] = useState(null);
-  const [esFavorito, setEsFavorito] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Cargar receta
-    fetch(`https://recetario-app-backend.onrender.com/api/recipes/${id}`)
-      .then(res => res.json())
-      .then(data => setReceta(data));
-
-    // Verificar si está en favoritos
-  fetch("https://recetario-app-backend.onrender.com/api/favorites/user123")
-    .then(res => res.json())
-    .then(data => {
-      const ids = data.map(r => r._id); // el backend devuelve recetas completas
-      setEsFavorito(ids.includes(id));
-    });
+    (async () => {
+      try {
+        const data = await getRecipeById(id);
+        setReceta(data);
+      } catch (e) {
+        console.error("Error cargando receta:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
-  const añadirFavorito = async () => {
-    await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "user123", recipeId: id }),
-    });
-    setEsFavorito(true);
-  };
-
-const eliminarFavorito = async () => {
-  await fetch(`https://recetario-app-backend.onrender.com/api/favorites/${id}/user123`, {
-    method: "DELETE",
-  });
-  setEsFavorito(false);
-};
-
-  if (!receta) return <div>Cargando...</div>;
+  if (loading) return <div className="container">Cargando...</div>;
+  if (!receta) return <div className="container">Receta no encontrada</div>;
+  const imgSrc = resolveImageUrl(receta.image);
 
   return (
-    <>
-      <header>
-        <div className="header-inner">
-          <div className="brand">
-            <span className="logo"></span>
-            <span className="brand-title">SUPER RECETARIO</span>
-          </div>
-          <nav className="nav">
-            <a href="/" className="nav-btn">Inicio</a>
-            <a href="/favoritos" className="nav-btn">Favoritos</a>
-            <a href="/perfil" className="nav-btn">Perfil</a>
-          </nav>
+    <div id="recipe" className="container">
+      <div className="hero">
+        <div className="image">
+          <img src={imgSrc} alt={receta.title} style={{ width:"100%", borderRadius:18 }} />
         </div>
-      </header>
-
-      <main className="container">
-        <div className="shell">
-          <div className="search-banner crema">Información de la receta</div>
-
-          <div className="recipe-layout" style={{ backgroundColor: "#FF6A3D" }}>
-            <aside className="recipe-box">
-              <img
-                src={`https://recetario-app-backend.onrender.com${receta.image}`}
-                alt={receta.name}
-                className="recipe-image"
-              />
-            </aside>
-
-            <section className="recipe-box">
-              <h2>{receta.name}</h2>
-              <p><strong>Duración:</strong> {receta.cookTime} min</p>
-              <p><strong>Dificultad:</strong> {receta.difficulty}</p>
-              <p><strong>Tipo:</strong> {receta.category}</p>
-              <p><strong>Restricciones:</strong> {Array.isArray(receta.restrictions) ? receta.restrictions.join(", ") : "Ninguna"}</p>
-
-              <h3>Ingredientes</h3>
-              <ul>{receta.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}</ul>
-
-              <h3>Instrucciones</h3>
-              <ol>{receta.instructions.map((paso, i) => <li key={i}>{paso}</li>)}</ol>
-
-              <div className="recipe-buttons">
-                {!esFavorito ? (
-                  <button className="btn" onClick={añadirFavorito}>♡ Añadir a favoritos</button>
-                ) : (
-                  <button className="btn" onClick={eliminarFavorito}>❤️ Eliminar de favoritos</button>
-                )}
-                <button className="btn" onClick={() => navigate("/")}>← Volver al inicio</button>
-              </div>
-            </section>
+        <div className="panel">
+          <div className="panel-inner">
+            <h1 className="page-title">{receta.title}</h1>
+            <p><strong>Tiempo:</strong> {receta.minutes} min</p>
+            <p><strong>Dificultad:</strong> {receta.difficulty}</p>
+            <h3 className="section-title">Ingredientes</h3>
+            <ul>
+              {receta.ingredients?.map((i, idx) => <li key={idx}>{i}</li>)}
+            </ul>
+            <h3 className="section-title">Preparación</h3>
+            <ol>
+              {receta.instructions?.map((p, idx) => <li key={idx}>{p}</li>)}
+            </ol>
           </div>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }

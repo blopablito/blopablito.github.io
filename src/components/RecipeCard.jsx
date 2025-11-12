@@ -1,79 +1,64 @@
-import { useNavigate } from "react-router-dom";
+// src/components/RecipeCard.jsx
+import { Link } from "react-router-dom";
+import { resolveImageUrl } from "../services/images";
 
-export default function RecipeCard({ receta }) {
-  const navigate = useNavigate();
-  const dificultad = receta.difficulty === "media" ? "intermedia" : receta.difficulty;
+export default function RecipeCard({ receta, onFav, isFav = false }) {
+  const {
+    id,
+    image,
+    title,
+    minutes,
+    difficulty,
+    meal = [],
+    restrictions = [],
+  } = receta || {};
 
-  const guardarFavorito = async (e) => {
-    e.stopPropagation(); // evita que se active el Link
-    e.preventDefault(); // evita que se navegue
-    await fetch("https://recetario-app-backend.onrender.com/api/favorites", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: "user123", recipeId: receta.id }),
-    });
-    alert("Receta guardada en favoritos");
-  };
+  const imgSrc = resolveImageUrl(image);
+  const mealText = Array.isArray(meal) ? meal.join(" · ") : meal || "—";
+  const diffText = String(difficulty || "—");
 
   return (
-    <div className="card" onClick={() => navigate(`/receta/${receta.id}`)}>
-      <div className="card-inner">
-        <img
-          src={`https://recetario-app-backend.onrender.com${receta.image}`}
-          alt={receta.title}
-        />
-        <div className="title">{receta.title}</div>
-        <div className="meta">
-          <div className="badge">🕒 {receta.minutes} min</div>
-          <div className="badge">Dificultad: {dificultad}</div>
-        </div>
+    <article className="recipe-card" role="listitem">
+      <div className="thumb">
+        <Link to={`/receta/${id}`} aria-label={`Ver ${title || "receta"}`}>
+          <img src={imgSrc} alt={title || "receta"} loading="lazy" />
+        </Link>
+      </div>
+
+      <h3 className="title">
+        <Link to={`/receta/${id}`}>{title || "Receta"}</Link>
+      </h3>
+
+      <div className="meta">
+        <span>⏱ {minutes ?? "—"} min</span>
+        <span style={{ textTransform: "capitalize" }}>{mealText}</span>
+      </div>
+
+      <div className="meta" style={{ marginTop: 2 }}>
+        <span>Dif.: {diffText}</span>
+      </div>
+
+      {restrictions?.length ? (
         <div className="badges">
-          {receta.restrictions.map((r) => (
-            <span
-              key={r}
-              className={`badge ${
-                r === "vegetariano"
-                  ? "info"
-                  : r === "sinlacteos" || r === "singluten"
-                  ? "ok"
-                  : "warn"
-              }`}
-            >
+          {restrictions.map((r) => (
+            <span key={r} className="badge ok">
               {r}
             </span>
           ))}
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div className="badge">Tipo: {receta.meal.join(", ")}</div>
-          <button className="btn" aria-label="Favorito" onClick={guardarFavorito}>
-            ♡
-          </button>
-        </div>
+      ) : null}
 
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
         <button
-          style={{
-            backgroundColor: "#a3d9a5",
-            color: "#000",
-            padding: "8px 12px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginTop: "10px",
-          }}
-          onClick={(e) => {
-            e.stopPropagation(); // evita que se active el navigate
-            window.open(`https://recetario-app-backend.onrender.com/rdf/${receta.id}`, '_blank');
-          }}
+          type="button"
+          className="btn-outline"
+          onClick={() => onFav?.(receta)}
+          aria-label={isFav ? "Quitar de favoritos" : "Añadir a favoritos"}
+          title={isFav ? "Quitar de favoritos" : "Añadir a favoritos"}
         >
-          Ver RDF
+          {isFav ? "♥ Favorito" : "♡ Favorito"}
         </button>
       </div>
-    </div>
+    </article>
   );
 }

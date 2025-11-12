@@ -1,89 +1,120 @@
-import React, { useEffect, useState } from 'react';
-import SearchBar from '../components/SearchBar';
-import Filters from '../components/Filters';
-import RecipeCard from '../components/RecipeCard';
+import { useEffect, useMemo, useState, useContext } from "react";
+import Board from "../components/Board";
+import SearchBar from "../components/SearchBar";
+import Filters from "../components/Filters";
+import RecipeCard from "../components/RecipeCard";
+import { getRecipes } from "../services/api";
+import { AuthContext } from "../store/authContext";
+import { toggleFav, getFavIds } from "../store/FavsStore";
 
 export default function Home() {
-  const [recetas, setRecetas] = useState([]);
-  const [busqueda, setBusqueda] = useState('');
-  const [filtros, setFiltros] = useState({ time: [], diff: [], type: [], rest: [] });
+  const [recipes, setRecipes] = useState([]);
+  const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState({});
+  const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
+  const [favIds, setFavIds] = useState(() => (user ? getFavIds(user.id) : []));
 
   useEffect(() => {
-    fetch("https://recetario-app-backend.onrender.com/api/recipes")
-      .then(res => res.json())
-      .then(data => {
-        const adaptadas = data.map(r => ({
-          id: r._id,
-          title: r.name,
-          description: r.description,
-          image: r.image,
-          minutes: r.cookTime,
-          difficulty: r.difficulty.toLowerCase() === "media" ? "intermedia" : r.difficulty.toLowerCase(),
-          meal: [r.category.toLowerCase()],
-          restrictions: r.restrictions || [],
-          author: r.author || 'Anónimo'
-        }));
-        setRecetas(adaptadas);
-      });
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await getRecipes();
+        setRecipes(Array.isArray(data) ? data : []);
+      } catch (e) {
+        console.error("Error cargando recetas:", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const filtrarPorTiempo = (minutos) => {
-    return filtros.time.length === 0 || filtros.time.some(rango => {
-      const [min, max] = rango.split("-").map(Number);
-      return minutos >= min && minutos <= max;
-    });
-  };
+  useEffect(() => {
+    if (user) setFavIds(getFavIds(user.id));
+  }, [user]);
 
-  const filtrar = r => {
-    const text = busqueda.toLowerCase();
-    return (
-      (r.title.toLowerCase().includes(text) || r.description.toLowerCase().includes(text)) &&
-      filtrarPorTiempo(r.minutes) &&
-      (filtros.diff.length === 0 || filtros.diff.includes(r.difficulty)) &&
-      (filtros.type.length === 0 || filtros.type.some(t => r.meal.includes(t))) &&
-      (filtros.rest.length === 0 || filtros.rest.every(fr => r.restrictions.includes(fr)))
+  const filtered = useMemo(() => {
+    let list = recipes;
+    const q = query.trim().toLowerCase();
+
+    if (q) list = list.filter((r) =>
+      r.title?.toLowerCase().includes(q) ||
+      r.ingredients?.some?.((i) => i.toLowerCase().includes(q))
     );
+
+    if (filters.time?.length)
+      list = list.filter((r) => {
+        const t = Number(r.minutes);
+        return filters.time.some((f) => {
+          if (f === "15-30") return t >= 15 && t <= 30;
+          if (f === "30-45") return t > 30 && t <= 45;
+          if (f === "45-60") return t > 45 && t <= 60;
+          if (f === "60+") return t > 60;
+          return true;
+        });
+      });
+
+    if (filters.difficulty?.length)
+      list = list.filter((r) =>
+        filters.difficulty.includes(r.difficulty?.toLowerCase?.())
+      );
+
+    if (filters.type?.length)
+      list = list.filter((r) =>
+        filters.type.some((t) =>
+          Array.isArray(r.meal) ? r.meal.includes(t) : r.meal === t
+        )
+      );
+
+    if (filters.restrictions?.length)
+      list = list.filter((r) =>
+        filters.restrictions.every((s) => r.restrictions?.includes?.(s))
+      );
+
+    return list;
+  }, [recipes, query, filters]);
+
+  const handleFav = (receta) => {
+    if (!user) return alert("Inicia sesión para guardar favoritos");
+    const { ids } = toggleFav(user.id, receta);
+    setFavIds(ids);
   };
 
-  const recetasFiltradas = recetas.filter(filtrar);
+  const header = (
+    <SearchBar
+      value={query}
+      onChange={setQuery}
+      onSubmit={setQuery}
+      placeholder="Buscar recetas o ingredientes"
+    />
+  );
 
-  return (
+  const left = (
     <>
-      <header>
-        <div className="header-inner">
-          <div className="brand">
-            <span className="logo"></span>
-            <span className="brand-title">SUPER RECETARIO</span>
-          </div>
-          <nav className="nav">
-            <a href="/" className="nav-btn active">Inicio</a>
-            <a href="/favoritos" className="nav-btn">Favoritos</a>
-            <a href="/perfil" className="nav-btn">Perfil</a>
-          </nav>
+      {loading ? (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--muted)" }}>
+          Cargando recetas...
         </div>
-      </header>
-
-      <main className="container">
-        <div className="shell">
-          <div className="search-section">
-            <SearchBar value={busqueda} onChange={setBusqueda} />
-          </div>
-          <div className="layout">
-            <section className="panel recipes-section">
-              <div className="grid">
-                {recetasFiltradas.length > 0 ? (
-                  recetasFiltradas.map(r => <RecipeCard key={r.id} receta={r} />)
-                ) : (
-                  <div className="empty">No se encontraron recetas.</div>
-                )}
-              </div>
-            </section>
-            <aside className="panel filters">
-              <Filters filtros={filtros} setFiltros={setFiltros} />
-            </aside>
-          </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--muted)" }}>
+          No se encontraron recetas
         </div>
-      </main>
+      ) : (
+        <div className="recipes-grid">
+          {filtered.map((rec) => (
+            <RecipeCard
+              key={rec.id}
+              receta={rec}
+              onFav={handleFav}
+              isFav={favIds.includes(String(rec.id))}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
+
+  const right = <Filters value={filters} onChange={setFilters} />;
+
+  return <Board id="home" header={header} left={left} right={right} />;
 }

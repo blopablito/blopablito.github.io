@@ -1,14 +1,37 @@
-export default function SearchBar({ value, onChange }) {
+import { useCallback, useState } from "react";
+
+export default function SearchBar({
+  value,
+  onChange,
+  onSubmit,
+  placeholder = "Buscar recetas o ingredientes",
+  className = "",
+}) {
+  const [local, setLocal] = useState(value || "");
+
+  const submit = useCallback((e) => {
+    e.preventDefault();
+    onSubmit?.(local);
+  }, [local, onSubmit]);
+
   return (
-    <div className="searchbar panel" role="search">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm11 3-6-6" stroke="#333" strokeWidth="2" strokeLinecap="round" />
+    <form className={`searchbar ${className}`} onSubmit={submit} role="search">
+      <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" fill="none"/>
+        <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
       </svg>
+
       <input
-        placeholder="Buscar recetas o ingredientes"
-        value={value}
-        onChange={e => onChange(e.target.value)}
+        type="search"
+        value={local}
+        onChange={(e) => { setLocal(e.target.value); onChange?.(e.target.value); }}
+        placeholder={placeholder}
+        aria-label="Buscar"
       />
-    </div>
+
+      <button type="submit" className="btn" aria-label="Buscar">
+        Buscar
+      </button>
+    </form>
   );
 }

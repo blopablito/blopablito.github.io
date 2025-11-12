@@ -1,11 +1,23 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+// src/index.js
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import { AuthProvider } from "./store/authContext";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// estilos globales
+import "./styles/theme.css";
+import "./styles/base.css";
+import "./styles/pages.css";
+
+const container = document.getElementById("root");
+const root = createRoot(container);
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
