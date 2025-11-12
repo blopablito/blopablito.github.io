@@ -65,7 +65,7 @@ export async function deleteRecipe(id) {
   return await http(`/api/recipes/${id}`, { method: "DELETE" });
 }
 
-// 🔐 Auth real
+// Auth real
 export async function loginUser({ email, password }) {
   return await http("/api/auth/login", {
     method: "POST",
@@ -74,8 +74,9 @@ export async function loginUser({ email, password }) {
 }
 
 export async function registerUser({ email, password }) {
+  const username = email.split("@")[0]; // ejemplo: usuario1@example.com → usuario1
   return await http("/api/auth/register", {
     method: "POST",
-    body: { email, password },
+    body: { email, password, username },
   });
 }
