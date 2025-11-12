@@ -1,3 +1,4 @@
+// src/services/api.js
 const BASE_URL = process.env.REACT_APP_API_BASE || "https://recetario-app-backend.onrender.com";
 
 async function http(path, { method = "GET", headers, body } = {}) {
@@ -16,6 +17,7 @@ async function http(path, { method = "GET", headers, body } = {}) {
   return ct.includes("application/json") ? res.json() : res.text();
 }
 
+// Imágenes absolutas
 function absolutizeImage(image) {
   if (!image) return "";
   if (/^https?:\/\//i.test(image)) return image;
@@ -23,6 +25,7 @@ function absolutizeImage(image) {
   return image;
 }
 
+// Recetas
 function mapRecipe(r = {}) {
   return {
     id: String(r._id ?? r.id),
@@ -45,38 +48,33 @@ export async function getRecipes() {
   const data = await http("/api/recipes");
   return mapList(data);
 }
-
 export async function getRecipeById(id) {
   const data = await http(`/api/recipes/${id}`);
   return mapRecipe(data);
 }
-
 export async function createRecipe(payload) {
   const data = await http(`/api/recipes`, { method: "POST", body: payload });
   return mapRecipe(data);
 }
-
 export async function updateRecipe(id, payload) {
   const data = await http(`/api/recipes/${id}`, { method: "PUT", body: payload });
   return mapRecipe(data);
 }
-
 export async function deleteRecipe(id) {
   return await http(`/api/recipes/${id}`, { method: "DELETE" });
 }
 
-// Auth real
+
 export async function loginUser({ email, password }) {
-  return await http("/api/auth/login", {
-    method: "POST",
-    body: { email, password },
-  });
+  return await http("/api/auth/login", { method: "POST", body: { email, password } });
+}
+export async function registerUser({ email, password, username, birthday, gender }) {
+  // username requerido por backend; birthday y gender opcionales
+  const body = { email, password, username, birthday: birthday || null, gender: gender || null };
+  return await http("/api/auth/register", { method: "POST", body });
 }
 
-export async function registerUser({ email, password }) {
-  const username = email.split("@")[0]; // ejemplo: usuario1@example.com → usuario1
-  return await http("/api/auth/register", {
-    method: "POST",
-    body: { email, password, username },
-  });
+export async function getUserFavorites(userId) {
+  const data = await http(`/api/auth/favorites/${userId}`);
+  return Array.isArray(data) ? data.map(mapRecipe) : [];
 }

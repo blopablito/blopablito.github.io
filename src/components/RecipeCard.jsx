@@ -25,7 +25,18 @@ export default function RecipeCard({ receta, onFav, isFav }) {
             ))}
           </p>
         )}
-        <button className="btn" onClick={() => onFav(receta)}>
+        <button
+          className="btn"
+          onClick={() => {
+            try {
+              onFav(receta);
+              alert(isFav ? "Se quitó de favoritos" : "Se guardó correctamente en favoritos");
+            } catch (e) {
+              alert("No se pudo actualizar favoritos");
+              console.error(e);
+            }
+          }}
+        >
           {isFav ? "Quitar de Favoritos" : "Favorito"}
         </button>
       </div>

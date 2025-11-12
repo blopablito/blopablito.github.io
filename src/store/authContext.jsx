@@ -1,3 +1,4 @@
+// src/store/authContext.jsx
 import { createContext, useCallback, useMemo, useState } from "react";
 import { loginUser, registerUser } from "../services/api";
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
         email: res.user?.email,
         username: res.user?.username,
         role,
+        avatarUrl: res.user?.avatarUrl || null,
       };
       setSession({ user, token: res.token });
       return res;
@@ -24,15 +26,16 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const register = useCallback(async ({ email, password }) => {
+  const register = useCallback(async ({ email, password, username, birthday, gender }) => {
     try {
-      const res = await registerUser({ email, password });
+      const res = await registerUser({ email, password, username, birthday, gender });
       const role = res.user?.is_admin ? "admin" : "user";
       const user = {
         id: res.user?.id,
         email: res.user?.email,
         username: res.user?.username,
         role,
+        avatarUrl: res.user?.avatarUrl || null,
       };
       setSession({ user, token: res.token });
       return res;
