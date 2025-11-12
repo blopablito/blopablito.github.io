@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../store/authContext";
 
+// trigger redeploy forzar cambio
+
 export default function Account() {
   const { user, role, login, register, logout, setRole } = useContext(AuthContext);
   const [email, setEmail] = useState("");
@@ -25,7 +27,6 @@ export default function Account() {
               <button className="btn" onClick={() => login({ email, role: "editor" })}>
                 Ingresar como Editor
               </button>
-              {/* Botón para registrar usuario prueba 2 */}
               <button className="btn" onClick={() => register({ email, role: "user" })}>
                 Registrarse
               </button>
@@ -52,7 +53,6 @@ export default function Account() {
               Cambiar a Usuario
             </button>
           )}
-          {/* Uso adicional de register en bloque logueado */}
           <button
             className="btn"
             style={{ marginLeft: 10 }}
@@ -65,4 +65,3 @@ export default function Account() {
     </div>
   );
 }
-"// trigger redeploy" 
