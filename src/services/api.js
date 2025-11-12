@@ -26,9 +26,9 @@ function absolutizeImage(image) {
 
 function capitalizeDifficulty(d) {
   const x = String(d || "").toLowerCase();
-  if (x === "facil" || x === "fácil") return "Fácil";
+  if (x === "fácil" || x === "facil") return "Fácil";
   if (x === "intermedio") return "Intermedio";
-  if (x === "dificil" || x === "difícil") return "Difícil";
+  if (x === "difícil" || x === "dificil") return "Difícil";
   return "Intermedio";
 }
 
@@ -40,9 +40,9 @@ function mapRecipe(r = {}) {
     image: absolutizeImage(r.image),
     cookTime: Number(r.cookTime),
     servings: Number(r.servings),
-    difficulty: String(r.difficulty || "").toLowerCase(), // para filtros
+    difficulty: String(r.difficulty || "").toLowerCase(),
     category: r.category || "",
-    restrictions: Array.isArray(r.restrictions) ? r.restrictions : [],
+    restrictions: Array.isArray(r.restrictions) ? r.restrictions.map(x => x.toLowerCase()) : [],
     ingredients: Array.isArray(r.ingredients) ? r.ingredients : [],
     instructions: Array.isArray(r.instructions) ? r.instructions : [],
   };
@@ -50,17 +50,15 @@ function mapRecipe(r = {}) {
 
 const mapList = (arr) => (Array.isArray(arr) ? arr.map(mapRecipe) : []);
 
+// Recetas
 export async function getRecipes() {
   const data = await http("/api/recipes");
   return mapList(data);
 }
-
 export async function getRecipeById(id) {
   const data = await http(`/api/recipes/${id}`);
   return mapRecipe(data);
 }
-
-// Crear: omite "image" para que el backend asigne /assets/images/recipes/<id>.jpg
 export async function createRecipe(payload) {
   const body = {
     name: payload.name,
@@ -69,14 +67,13 @@ export async function createRecipe(payload) {
     servings: Number(payload.servings ?? 1),
     difficulty: capitalizeDifficulty(payload.difficulty),
     category: payload.category || "",
-    restrictions: payload.restrictions || [],
+    restrictions: (payload.restrictions || []).map(x => x.toLowerCase()),
     ingredients: payload.ingredients || [],
     instructions: payload.instructions || [],
   };
   const data = await http(`/api/recipes`, { method: "POST", body });
   return mapRecipe(data);
 }
-
 export async function updateRecipe(id, payload) {
   const body = {
     name: payload.name,
@@ -85,15 +82,29 @@ export async function updateRecipe(id, payload) {
     servings: Number(payload.servings ?? 1),
     difficulty: capitalizeDifficulty(payload.difficulty),
     category: payload.category || "",
-    restrictions: payload.restrictions || [],
+    restrictions: (payload.restrictions || []).map(x => x.toLowerCase()),
     ingredients: payload.ingredients || [],
     instructions: payload.instructions || [],
-    image: payload.image || undefined, // opcionalmente permitir editar imagen
+    image: payload.image || undefined,
   };
   const data = await http(`/api/recipes/${id}`, { method: "PUT", body });
   return mapRecipe(data);
 }
-
 export async function deleteRecipe(id) {
   return await http(`/api/recipes/${id}`, { method: "DELETE" });
+}
+
+// Auth real
+export async function loginUser({ email, password }) {
+  // Esperado: { user: { id, email, role }, token }
+  return await http("/api/auth/login", { method: "POST", body: { email, password } });
+}
+export async function registerUser({ email, password }) {
+  // Esperado: { user, token }
+  return await http("/api/auth/register", { method: "POST", body: { email, password } });
+}
+export async function getUserFavorites(userId) {
+  const data = await http(`/api/auth/favorites/${userId}`);
+  // Si el backend devuelve ids u objetos, mapea si aplica:
+  return Array.isArray(data) ? data.map(mapRecipe) : [];
 }

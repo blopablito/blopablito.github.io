@@ -8,7 +8,7 @@ import RecipeForm from "../components/RecipeForm";
 
 export default function Editor() {
   const { role, setRole } = useContext(AuthContext);
-  const isEditor = String(role).toLowerCase() === "editor";
+  const isAdmin = String(role).toLowerCase() === "admin";
 
   const [all, setAll] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ export default function Editor() {
       cookTime: Number(payload.cookTime ?? payload.minutes),
       difficulty: String(payload.difficulty).toLowerCase(),
       category: Array.isArray(payload.meal) ? (payload.meal[0] || "") : "",
-      restrictions: payload.restrictions || [],
+      restrictions: (payload.restrictions || []).map(r => r.toLowerCase()),
       ingredients: payload.ingredients || [],
       instructions: payload.instructions || [],
       description: payload.description ?? payload._description ?? "",
@@ -103,14 +103,16 @@ export default function Editor() {
     }
   }
 
-  if (!isEditor) {
+  if (!isAdmin) {
     return (
       <div className="container">
         <div className="panel">
           <div className="panel-inner" style={{ display: "grid", gap: 10 }}>
             <h1 className="page-title">Editor</h1>
-            <p>Necesitas el rol <strong>editor</strong> para gestionar recetas.</p>
-            <button className="btn" onClick={() => setRole("editor")}>Cambiar a Editor</button>
+            <p>Necesitas el rol <strong>admin</strong> para gestionar recetas.</p>
+            <button className="btn" onClick={() => setRole("admin")}>
+              Cambiar a Admin
+            </button>
           </div>
         </div>
       </div>

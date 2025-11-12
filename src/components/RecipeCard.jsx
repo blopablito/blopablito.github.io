@@ -21,9 +21,7 @@ export default function RecipeCard({ receta, onFav, isFav }) {
           <p>
             <strong>Etiquetas:</strong>{" "}
             {receta.restrictions.map((tag, idx) => (
-              <span key={idx} className="tag">
-                {capitalize(tag)}
-              </span>
+              <span key={idx} className="tag">{capitalize(tag)}</span>
             ))}
           </p>
         )}
