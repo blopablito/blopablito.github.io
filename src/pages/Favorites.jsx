@@ -1,7 +1,7 @@
 // src/pages/Favorites.jsx
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../store/authContext";
-import { getFavItems, toggleFav } from "../store/favsStore";
+import { getFavItems, toggleFav } from "../store/FavsStore";
 import RecipeCard from "../components/RecipeCard";
 
 export default function Favorites() {

@@ -6,7 +6,7 @@ import Filters from "../components/Filters";
 import RecipeCard from "../components/RecipeCard";
 import { getRecipes } from "../services/api";
 import { AuthContext } from "../store/authContext";
-import { toggleFav, getFavIds } from "../store/favsStore";
+import { toggleFav, getFavIds } from "../store/FavsStore";
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
