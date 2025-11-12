@@ -1,52 +1,57 @@
-// src/store/authContext.jsx
 import { createContext, useCallback, useMemo, useState } from "react";
 import { loginUser, registerUser } from "../services/api";
 
-export const AuthContext = createContext({
-  user: null,
-  role: "guest",
-  token: null,
-  login: async () => {},
-  register: async () => {},
-  logout: async () => {},
-  setRole: async () => {},
-});
+export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
 
   const login = useCallback(async ({ email, password }) => {
-    const s = await loginUser({ email, password });
-    // Asegura que exista user.id para favoritos
-    const user = { ...s.user, id: s.user?.id ?? s.user?.email };
-    setSession({ user, token: s.token });
-    return { user, token: s.token };
+    try {
+      const res = await loginUser({ email, password });
+      const role = res.user?.is_admin ? "admin" : "user";
+      const user = {
+        id: res.user?.id,
+        email: res.user?.email,
+        username: res.user?.username,
+        role,
+      };
+      setSession({ user, token: res.token });
+      return res;
+    } catch (err) {
+      alert("Error al iniciar sesión: " + err.message);
+      throw err;
+    }
   }, []);
 
   const register = useCallback(async ({ email, password }) => {
-    const s = await registerUser({ email, password });
-    const user = { ...s.user, id: s.user?.id ?? s.user?.email };
-    setSession({ user, token: s.token });
-    return { user, token: s.token };
+    try {
+      const res = await registerUser({ email, password });
+      const role = res.user?.is_admin ? "admin" : "user";
+      const user = {
+        id: res.user?.id,
+        email: res.user?.email,
+        username: res.user?.username,
+        role,
+      };
+      setSession({ user, token: res.token });
+      return res;
+    } catch (err) {
+      alert("Error al registrarse: " + err.message);
+      throw err;
+    }
   }, []);
 
-  const logout = useCallback(async () => {
-    setSession(null);
-  }, []);
-
-  const setRole = useCallback(async (role) => {
-    if (!session?.user) return null;
-    const next = { ...session, user: { ...session.user, role } };
-    setSession(next);
-    return next;
-  }, [session]);
+  const logout = useCallback(() => setSession(null), []);
 
   const value = useMemo(() => ({
     user: session?.user || null,
     role: session?.user?.role || "guest",
     token: session?.token || null,
-    login, register, logout, setRole,
-  }), [session, login, register, logout, setRole]);
+    login,
+    register,
+    logout,
+  }), [session, login, register, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
