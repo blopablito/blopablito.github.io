@@ -1,12 +1,12 @@
-// src/components/RecipeCard.jsx
 import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import Toast from "./Toast";
 import { AuthContext } from "../store/authContext";
 import { addFavorite, removeFavorite } from "../services/api";
 
-export default function RecipeCard({ receta, isFav }) {
+export default function RecipeCard({ receta, isFav: initialFav }) {
   const { user } = useContext(AuthContext);
+  const [isFav, setIsFav] = useState(initialFav);
   const [toastMsg, setToastMsg] = useState("");
 
   const handleFav = async () => {
@@ -17,9 +17,11 @@ export default function RecipeCard({ receta, isFav }) {
     try {
       if (isFav) {
         await removeFavorite(user.id, receta.id);
+        setIsFav(false); 
         setToastMsg("Se quitó de favoritos");
       } else {
         await addFavorite(user.id, receta.id);
+        setIsFav(true); 
         setToastMsg("Se guardó en favoritos");
       }
     } catch (e) {
