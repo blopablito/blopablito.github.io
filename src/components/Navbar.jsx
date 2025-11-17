@@ -26,12 +26,12 @@ export default function Navbar() {
       borderBottom: "2px solid #f9844a",
       fontSize: "16px",
     }}>
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.path;
+      {navItems.map(({ path, label }) => {
+        const isActive = location.pathname === path;
         return (
           <Link
-            key={item.path}
-            to={item.path}
+            key={path}
+            to={path}
             style={{
               textDecoration: "none",
               color: isActive ? "#000" : "#555",
@@ -40,7 +40,7 @@ export default function Navbar() {
               fontWeight: isActive ? "bold" : "normal",
             }}
           >
-            {item.label}
+            {label}
           </Link>
         );
       })}
