@@ -109,3 +109,15 @@ export async function removeFavorite(userId, recipeId) {
     body: { recipeId },
   });
 }
+
+export async function createRecipe(payload, token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const data = await http(`/api/recipes`, { method: "POST", body: payload, headers });
+  return mapRecipe(data);
+}
+
+export async function updateRecipe(id, payload, token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const data = await http(`/api/recipes/${id}`, { method: "PUT", body: payload, headers });
+  return mapRecipe(data);
+}

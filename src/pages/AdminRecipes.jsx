@@ -5,11 +5,11 @@ import AdminRecipeForm from "../components/AdminRecipeForm";
 import Toast from "../components/Toast";
 
 export default function AdminRecipes() {
-  const { role } = useContext(AuthContext);
+  const { role, token } = useContext(AuthContext);
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null); 
-  const [creating, setCreating] = useState(false); 
+  const [editing, setEditing] = useState(null);
+  const [creating, setCreating] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -40,40 +40,39 @@ export default function AdminRecipes() {
 
   const handleCreate = async (payload) => {
     try {
-      const r = await createRecipe(payload);
+      const r = await createRecipe(payload, token);
       setToastMsg("Receta creada correctamente");
       setCreating(false);
       setList((prev) => [r, ...prev]);
     } catch (e) {
-      console.error(e);
+      console.error("Error al crear receta:", e);
       setToastMsg("No se pudo crear la receta");
     }
   };
 
   const handleUpdate = async (payload) => {
     try {
-      const r = await updateRecipe(editing.id, payload);
+      const r = await updateRecipe(editing.id, payload, token);
       setToastMsg("Cambios guardados");
       setEditing(null);
       setList((prev) => prev.map((x) => (x.id === r.id ? r : x)));
     } catch (e) {
-      console.error(e);
+      console.error("Error al editar receta:", e);
       setToastMsg("No se pudo guardar los cambios");
     }
   };
 
-    const handleDelete = async (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("¿Seguro que deseas eliminar esta receta?")) return;
     try {
-        await deleteRecipe(id);
-        setToastMsg("Receta eliminada");
-        setList((prev) => prev.filter((x) => x.id !== id));
+      await deleteRecipe(id, token);
+      setToastMsg("Receta eliminada");
+      setList((prev) => prev.filter((x) => x.id !== id));
     } catch (e) {
-        console.error(e);
-        setToastMsg("No se pudo eliminar la receta");
+      console.error("Error al eliminar receta:", e);
+      setToastMsg("No se pudo eliminar la receta");
     }
-    };
-
+  };
 
   return (
     <div className="container">
@@ -81,7 +80,7 @@ export default function AdminRecipes() {
 
       <div className="panel">
         <div className="panel-inner" style={{ display: "grid", gap: 16 }}>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8 }}>
             {!creating && !editing && (
               <button className="btn" onClick={() => setCreating(true)}>Nueva receta</button>
             )}
