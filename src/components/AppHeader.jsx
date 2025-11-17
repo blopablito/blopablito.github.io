@@ -1,36 +1,15 @@
-// src/components/AppHeader.jsx
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../store/authContext"; 
 
-const Icon = {
-  Home: (p) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...p}>
-      <path d="M3 10.5 12 3l9 7.5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M5 10v10h14V10" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-  Heart: (p) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...p}>
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  ),
-  User: (p) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...p}>
-      <circle cx="12" cy="8" r="4" strokeWidth="2"/>
-      <path d="M4 20c2-4 6-6 8-6s6 2 8 6" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-  Info: (p) => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...p}>
-      <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-      <path d="M12 8h.01M11 12h2v6h-2z" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  ),
-};
+const Icon = { /* tus íconos */ };
 
 export default function AppHeader() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { role } = useContext(AuthContext); 
+
   useEffect(() => setOpen(false), [pathname]);
 
   const linkClass = ({ isActive }) => `nav-btn${isActive ? " active" : ""}`;
@@ -55,6 +34,11 @@ export default function AppHeader() {
           <NavLink to="/acerca" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
             <Icon.Info/> Acerca
           </NavLink>
+          {role === "admin" && (
+            <NavLink to="/admin/recetas" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
+              🛠️ Administración
+            </NavLink>
+          )}
         </nav>
 
         <button
@@ -77,6 +61,9 @@ export default function AppHeader() {
             <NavLink to="/favoritos" className={linkClass}>Favoritos</NavLink>
             <NavLink to="/cuenta" className={linkClass}>Cuenta</NavLink>
             <NavLink to="/acerca" className={linkClass}>Acerca</NavLink>
+            {role === "admin" && (
+              <NavLink to="/admin/recetas" className={linkClass}>Administración</NavLink>
+            )}
           </div>
         </div>
       )}
