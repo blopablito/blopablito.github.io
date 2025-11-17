@@ -6,21 +6,22 @@ export default function Navbar() {
   const { role } = useContext(AuthContext);
   const location = useLocation();
 
-  const navItems = [
+  const baseItems = [
     { path: "/", label: "Inicio" },
     { path: "/favoritos", label: "Favoritos" },
     { path: "/cuenta", label: "Cuenta" },
     { path: "/acerca", label: "Acerca" },
   ];
 
-  if (role === "admin") {
-    navItems.push({ path: "/admin/recetas", label: "Administración" });
-  }
+  const navItems = role === "admin"
+    ? [...baseItems, { path: "/admin/recetas", label: "Administración" }]
+    : baseItems;
 
   return (
     <nav style={{
       display: "flex",
-      justifyContent: "space-around",
+      justifyContent: "center",
+      gap: "32px",
       padding: "12px 0",
       background: "#f9c74f",
       borderBottom: "2px solid #f9844a",
