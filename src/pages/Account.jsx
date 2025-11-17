@@ -8,6 +8,7 @@ export default function Account() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
 
+  // Manejo de login
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -17,15 +18,17 @@ export default function Account() {
     }
   };
 
+  // Manejo de registro
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await register({ email, password, username }); 
+      await register({ email, password, username });
     } catch (err) {
       console.error("Error al registrarse:", err);
     }
   };
 
+  // Manejo de logout
   const handleLogout = () => {
     logout();
   };
@@ -46,6 +49,7 @@ export default function Account() {
       ) : (
         <div className="panel">
           <div className="panel-inner" style={{ display: "grid", gap: 16 }}>
+            {/* Formulario de login */}
             <form onSubmit={handleLogin} style={{ display: "grid", gap: 8 }}>
               <h3>Iniciar sesión</h3>
               <input
@@ -63,6 +67,7 @@ export default function Account() {
               <button type="submit" className="btn">Entrar</button>
             </form>
 
+            {/* Formulario de registro */}
             <form onSubmit={handleRegister} style={{ display: "grid", gap: 8 }}>
               <h3>Registrarse</h3>
               <input
