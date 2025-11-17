@@ -56,19 +56,23 @@ export async function getRecipeById(id) {
   return mapRecipe(data);
 }
 
-export async function createRecipe(payload) {
-  const data = await http(`/api/recipes`, { method: "POST", body: payload });
+export async function createRecipe(payload, token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const data = await http(`/api/recipes`, { method: "POST", body: payload, headers });
   return mapRecipe(data);
 }
 
-export async function updateRecipe(id, payload) {
-  const data = await http(`/api/recipes/${id}`, { method: "PUT", body: payload });
+export async function updateRecipe(id, payload, token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const data = await http(`/api/recipes/${id}`, { method: "PUT", body: payload, headers });
   return mapRecipe(data);
 }
 
-export async function deleteRecipe(id) {
-  return await http(`/api/recipes/${id}`, { method: "DELETE" });
+export async function deleteRecipe(id, token) {
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  return await http(`/api/recipes/${id}`, { method: "DELETE", headers });
 }
+
 
 export async function loginUser({ email, password }) {
   return await http("/api/auth/login", {
@@ -81,7 +85,7 @@ export async function registerUser({ email, password, username, birthday, gender
   const body = {
     email,
     password,
-    username, 
+    username,
     birthday: birthday || null,
     gender: gender || null,
   };
@@ -90,6 +94,7 @@ export async function registerUser({ email, password, username, birthday, gender
     body,
   });
 }
+
 
 export async function getUserFavorites(userId) {
   const data = await http(`/api/favorites/${userId}`);
@@ -108,16 +113,4 @@ export async function removeFavorite(userId, recipeId) {
     method: "DELETE",
     body: { recipeId },
   });
-}
-
-export async function createRecipe(payload, token) {
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const data = await http(`/api/recipes`, { method: "POST", body: payload, headers });
-  return mapRecipe(data);
-}
-
-export async function updateRecipe(id, payload, token) {
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const data = await http(`/api/recipes/${id}`, { method: "PUT", body: payload, headers });
-  return mapRecipe(data);
 }
