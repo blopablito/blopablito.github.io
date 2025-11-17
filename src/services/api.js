@@ -78,3 +78,17 @@ export async function getUserFavorites(userId) {
   const data = await http(`/api/auth/favorites/${userId}`);
   return Array.isArray(data) ? data.map(mapRecipe) : [];
 }
+
+export async function addFavorite(userId, recipeId) {
+  return await http(`/api/auth/favorites/${userId}`, {
+    method: "POST",
+    body: { recipeId },
+  });
+}
+
+export async function removeFavorite(userId, recipeId) {
+  return await http(`/api/auth/favorites/${userId}`, {
+    method: "DELETE",
+    body: { recipeId },
+  });
+}
