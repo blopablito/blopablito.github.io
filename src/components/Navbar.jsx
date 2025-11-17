@@ -1,14 +1,16 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../store/authContext";
 
-export default function Navbar() {
+export default function NavBar() {
+  const { role } = useContext(AuthContext);
+
   return (
-    <header className="navbar">
-      <h1 className="logo">SUPER RECETARIO</h1>
-      <nav className="nav-links">
-        <NavLink to="/" className={({ isActive }) => isActive ? "nav-btn active" : "nav-btn"}>Inicio</NavLink>
-        <NavLink to="/favoritos" className={({ isActive }) => isActive ? "nav-btn active" : "nav-btn"}>Favoritos</NavLink>
-        <NavLink to="/perfil" className={({ isActive }) => isActive ? "nav-btn active" : "nav-btn"}>Perfil</NavLink>
-      </nav>
-    </header>
+    <nav style={{ display: "flex", gap: 12, padding: 12, borderBottom: "1px solid #eee" }}>
+      <Link to="/">Inicio</Link>
+      <Link to="/favoritos">Favoritos</Link>
+      <Link to="/cuenta">Cuenta</Link>
+      {role === "admin" && <Link to="/admin/recetas">Administración</Link>}
+    </nav>
   );
 }
