@@ -1,6 +1,6 @@
-// src/components/AppHeader.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { AuthContext } from "../store/authContext";
 
 const Icon = {
   Home: (p) => (
@@ -26,11 +26,18 @@ const Icon = {
       <path d="M12 8h.01M11 12h2v6h-2z" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   ),
+  Tool: (p) => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...p}>
+      <path d="M3 7l5 5-2 2-5-5zM14 4l6 6-8 8H6v-6z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
 };
 
 export default function AppHeader() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { role } = useContext(AuthContext) || {};
+
   useEffect(() => setOpen(false), [pathname]);
 
   const linkClass = ({ isActive }) => `nav-btn${isActive ? " active" : ""}`;
@@ -44,17 +51,22 @@ export default function AppHeader() {
 
         <nav className="nav nav-desktop" aria-label="Principal">
           <NavLink to="/" className={linkClass} end style={{display:"inline-flex",alignItems:"center",gap:6}}>
-            <Icon.Home/> Inicio
+            <Icon.Home /> Inicio
           </NavLink>
           <NavLink to="/favoritos" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
-            <Icon.Heart/> Favoritos
+            <Icon.Heart /> Favoritos
           </NavLink>
           <NavLink to="/cuenta" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
-            <Icon.User/> Cuenta
+            <Icon.User /> Cuenta
           </NavLink>
           <NavLink to="/acerca" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
-            <Icon.Info/> Acerca
+            <Icon.Info /> Acerca
           </NavLink>
+          {role === "admin" && (
+            <NavLink to="/admin/recetas" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
+              <Icon.Tool /> Administración
+            </NavLink>
+          )}
         </nav>
 
         <button
@@ -77,6 +89,9 @@ export default function AppHeader() {
             <NavLink to="/favoritos" className={linkClass}>Favoritos</NavLink>
             <NavLink to="/cuenta" className={linkClass}>Cuenta</NavLink>
             <NavLink to="/acerca" className={linkClass}>Acerca</NavLink>
+            {role === "admin" && (
+              <NavLink to="/admin/recetas" className={linkClass}>Administración</NavLink>
+            )}
           </div>
         </div>
       )}
