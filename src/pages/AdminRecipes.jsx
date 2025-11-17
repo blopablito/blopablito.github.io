@@ -62,17 +62,18 @@ export default function AdminRecipes() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Seguro que deseas eliminar esta receta?")) return;
+    const handleDelete = async (id) => {
+    if (!window.confirm("¿Seguro que deseas eliminar esta receta?")) return;
     try {
-      await deleteRecipe(id);
-      setToastMsg("Receta eliminada");
-      setList((prev) => prev.filter((x) => x.id !== id));
+        await deleteRecipe(id);
+        setToastMsg("Receta eliminada");
+        setList((prev) => prev.filter((x) => x.id !== id));
     } catch (e) {
-      console.error(e);
-      setToastMsg("No se pudo eliminar la receta");
+        console.error(e);
+        setToastMsg("No se pudo eliminar la receta");
     }
-  };
+    };
+
 
   return (
     <div className="container">
