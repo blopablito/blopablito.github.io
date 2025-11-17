@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 
 const DIFFS = ["fácil", "intermedio", "difícil"];
 const TYPES = ["Desayuno", "Almuerzo", "Cena", "Snack"];
-// Guardamos en minúsculas para coincidir con backend
 const RESTR = ["vegetariano", "sin lacteos", "sin gluten"];
 
 function toLines(val) {
@@ -73,7 +72,7 @@ export default function RecipeForm({
     if (!valid) return;
     const payload = {
       name: title.trim(),
-      image: image.trim(), // opcional en update
+      image: image.trim(), 
       cookTime: Number(minutes),
       servings: Number(servings),
       difficulty: String(difficulty).toLowerCase(),

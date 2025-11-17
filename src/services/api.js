@@ -17,7 +17,7 @@ async function http(path, { method = "GET", headers, body } = {}) {
   return ct.includes("application/json") ? res.json() : res.text();
 }
 
-// Imágenes absolutas
+// Imágenes 
 function absolutizeImage(image) {
   if (!image) return "";
   if (/^https?:\/\//i.test(image)) return image;

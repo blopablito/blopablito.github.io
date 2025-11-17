@@ -7,7 +7,6 @@ const TIME = [
 ];
 const DIFF = ["fácil", "intermedio", "difícil"];
 const TYPES = ["Desayuno", "Almuerzo", "Cena", "Snack"];
-// Guardamos en minúsculas para coincidir con backend
 const RESTR = ["vegetariano", "sin lacteos", "sin gluten"];
 
 export default function Filters({ value = {}, onChange }) {

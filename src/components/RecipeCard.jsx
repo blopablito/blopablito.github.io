@@ -1,10 +1,24 @@
 // src/components/RecipeCard.jsx
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import Toast from "./Toast"; 
 
 const capitalize = (s) =>
   typeof s === "string" && s.length ? s[0].toUpperCase() + s.slice(1) : s;
 
 export default function RecipeCard({ receta, onFav, isFav }) {
+  const [toastMsg, setToastMsg] = useState("");
+
+  const handleFav = () => {
+    try {
+      onFav(receta);
+      setToastMsg(isFav ? "Se quitó de favoritos" : "Se guardó en favoritos");
+    } catch (e) {
+      console.error("Error al guardar favorito:", e);
+      setToastMsg("No se pudo actualizar favoritos");
+    }
+  };
+
   return (
     <div className="recipe-card">
       <Link to={`/receta/${receta.id}`}>
@@ -25,21 +39,14 @@ export default function RecipeCard({ receta, onFav, isFav }) {
             ))}
           </p>
         )}
-        <button
-          className="btn"
-          onClick={() => {
-            try {
-              onFav(receta);
-              alert(isFav ? "Se quitó de favoritos" : "Se guardó correctamente en favoritos");
-            } catch (e) {
-              alert("No se pudo actualizar favoritos");
-              console.error(e);
-            }
-          }}
-        >
+        <button className="btn" onClick={handleFav}>
           {isFav ? "Quitar de Favoritos" : "Favorito"}
         </button>
       </div>
+
+      {toastMsg && (
+        <Toast message={toastMsg} onClose={() => setToastMsg("")} />
+      )}
     </div>
   );
 }

@@ -9,7 +9,6 @@ export default function Account() {
   const [password, setPassword] = useState("");
   const [showRegister, setShowRegister] = useState(false);
 
-  // Estado sin sesión: Login simple + botón para abrir modal de registro
   if (!user)
     return (
       <div className="container">
@@ -39,7 +38,6 @@ export default function Account() {
       </div>
     );
 
-  // Estado con sesión: Tarjeta de perfil estética
   const avatarSrc =
     user.avatarUrl ||
     `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || user.email)}&background=ccc&color=333&rounded=true`;

@@ -59,7 +59,6 @@ export default function Favorites() {
                   receta={r}
                   isFav={true}
                   onFav={() => {
-                    // Aquí podrías implementar quitar del backend; por ahora feedback
                     alert("Se mantendrá sincronización de favoritos pronto.");
                   }}
                 />

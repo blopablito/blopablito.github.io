@@ -18,13 +18,12 @@ export default function RegisterModal({ onClose }) {
       await register({
         email,
         password,
-        username: username || email.split("@")[0], // fallback
+        username: username || email.split("@")[0], 
         birthday: birthday || null,
         gender: gender || null,
       });
       onClose?.();
     } catch (err) {
-      // Mensaje claro para email duplicado
       if (String(err.message).includes("users_email_key")) {
         setError("Este correo ya está registrado. Intenta con otro.");
       } else {
