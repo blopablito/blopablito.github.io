@@ -18,7 +18,6 @@ export default function App() {
           <Route path="/cuenta" element={<Account />} />
           <Route path="/acerca" element={<About />} />
           <Route path="/receta/:id" element={<Recipe />} />
-          <Route path="/editor" element={<Editor />} />
           <Route path="/admin/recetas" element={<AdminRecipes />} />
           <Route path="*" element={<div className="container">Página no encontrada</div>} />
         </Routes>
