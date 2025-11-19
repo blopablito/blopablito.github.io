@@ -68,33 +68,7 @@ export default function AppHeader() {
             </NavLink>
           )}
         </nav>
-
-        <button
-          className="hamburger"
-          aria-label="Abrir menú"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen(v => !v)}
-        >
-          <span className="hamburger-bar" />
-          <span className="hamburger-bar" />
-          <span className="hamburger-bar" />
-        </button>
       </div>
-
-      {open && (
-        <div id="mobile-nav" className="nav-mobile" role="dialog" aria-modal="true" aria-label="Menú">
-          <div className="nav-mobile-inner">
-            <NavLink to="/" className={linkClass} end>Inicio</NavLink>
-            <NavLink to="/favoritos" className={linkClass}>Favoritos</NavLink>
-            <NavLink to="/cuenta" className={linkClass}>Cuenta</NavLink>
-            <NavLink to="/acerca" className={linkClass}>Acerca</NavLink>
-            {role === "admin" && (
-              <NavLink to="/admin/recetas" className={linkClass}>Administración</NavLink>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 }
