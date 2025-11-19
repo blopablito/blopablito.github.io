@@ -5,7 +5,6 @@ import Favorites from "./pages/Favorites";
 import Account from "./pages/Account";
 import About from "./pages/About";
 import Recipe from "./pages/Recipe";
-import Editor from "./pages/Editor";
 import AdminRecipes from "./pages/AdminRecipes";
 
 export default function App() {
