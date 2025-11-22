@@ -97,25 +97,39 @@ export async function registerUser({ email, password, username, birthday, gender
 
 
 export async function getUserFavorites(userId) {
-  // Se cambia la ruta para usar la definida en authRoutes (Supabase)
-  const data = await http("/api/auth/favorites/${userId}");
+  // 1. Corregida la sintaxis de comillas invertidas (template strings)
+  // 2. La ruta apunta correctamente a authRoutes (/api/auth/favorites)
+  const favoritesData = await http("/api/auth/favorites/${userId}");
   
-  // Nota: Asegúrate de que tu endpoint en authRoutes devuelva los datos de la receta
-  // (haciendo un join con la tabla de recetas) para que mapRecipe funcione correctamente.
-  return Array.isArray(data) ? data.map(mapRecipe) : [];
+  // 3. Solución de datos: El backend solo nos da IDs (recipe_id), 
+  // así que debemos buscar los detalles completos de cada receta.
+  if (Array.isArray(favoritesData)) {
+    // Creamos una promesa para traer cada receta individualmente
+    const promises = favoritesData.map(item => getRecipeById(item.recipe_id));
+    
+    // Esperamos a que todas las recetas carguen
+    const recipes = await Promise.all(promises);
+    
+    // Filtramos posibles nulos en caso de que alguna receta se haya borrado
+    return recipes.filter(r => r && r.id);
+  }
+  
+  return [];
 }
 
 export async function addFavorite(userId, recipeId) {
-  // authRoutes usa el método PUT para /favorites/:id y espera { recipeId } en el body
-  return await http("/api/auth/favorites/${userId}", {
+  // Corregida sintaxis de comillas invertidas
+  // authRoutes usa PUT para agregar
+  return await http("/api/auth/favorites/${userId"}, {
     method: "PUT", 
     body: { recipeId },
   });
 }
 
 export async function removeFavorite(userId, recipeId) {
-  // Se actualiza la ruta a /api/auth/favorites
-  return await http("/api/auth/favorites/${userId}", {
+  // Corregida sintaxis de comillas invertidas
+  // authRoutes usa DELETE para eliminar
+  return await http("/api/auth/favorites/${userId"}, {
     method: "DELETE",
     body: { recipeId },
   });
