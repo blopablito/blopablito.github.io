@@ -97,20 +97,14 @@ export async function registerUser({ email, password, username, birthday, gender
 
 
 export async function getUserFavorites(userId) {
-  // 1. Corregida la sintaxis de comillas invertidas (template strings)
-  // 2. La ruta apunta correctamente a authRoutes (/api/auth/favorites)
+
   const favoritesData = await http(`/api/auth/favorites/${userId}`);
   
-  // 3. Solución de datos: El backend solo nos da IDs (recipe_id), 
-  // así que debemos buscar los detalles completos de cada receta.
   if (Array.isArray(favoritesData)) {
-    // Creamos una promesa para traer cada receta individualmente
     const promises = favoritesData.map(item => getRecipeById(item.recipe_id));
     
-    // Esperamos a que todas las recetas carguen
     const recipes = await Promise.all(promises);
     
-    // Filtramos posibles nulos en caso de que alguna receta se haya borrado
     return recipes.filter(r => r && r.id);
   }
   
@@ -118,8 +112,6 @@ export async function getUserFavorites(userId) {
 }
 
 export async function addFavorite(userId, recipeId) {
-  // Corregida sintaxis de comillas invertidas
-  // authRoutes usa PUT para agregar
   return await http(`/api/auth/favorites/${userId}`, {
     method: "PUT", 
     body: { recipeId },
@@ -127,8 +119,6 @@ export async function addFavorite(userId, recipeId) {
 }
 
 export async function removeFavorite(userId, recipeId) {
-  // Corregida sintaxis de comillas invertidas
-  // authRoutes usa DELETE para eliminar
   return await http(`/api/auth/favorites/${userId}`, {
     method: "DELETE",
     body: { recipeId },
