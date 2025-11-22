@@ -97,19 +97,25 @@ export async function registerUser({ email, password, username, birthday, gender
 
 
 export async function getUserFavorites(userId) {
-  const data = await http(`/api/favorites/${userId}`);
+  // Se cambia la ruta para usar la definida en authRoutes (Supabase)
+  const data = await http(/api/auth/favorites/${userId});
+  
+  // Nota: Asegúrate de que tu endpoint en authRoutes devuelva los datos de la receta
+  // (haciendo un join con la tabla de recetas) para que mapRecipe funcione correctamente.
   return Array.isArray(data) ? data.map(mapRecipe) : [];
 }
 
 export async function addFavorite(userId, recipeId) {
-  return await http(`/api/favorites/${userId}`, {
-    method: "POST",
+  // authRoutes usa el método PUT para /favorites/:id y espera { recipeId } en el body
+  return await http(/api/auth/favorites/${userId}, {
+    method: "PUT", 
     body: { recipeId },
   });
 }
 
 export async function removeFavorite(userId, recipeId) {
-  return await http(`/api/favorites/${userId}`, {
+  // Se actualiza la ruta a /api/auth/favorites
+  return await http(/api/auth/favorites/${userId}, {
     method: "DELETE",
     body: { recipeId },
   });
