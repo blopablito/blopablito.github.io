@@ -120,7 +120,7 @@ export async function getUserFavorites(userId) {
 export async function addFavorite(userId, recipeId) {
   // Corregida sintaxis de comillas invertidas
   // authRoutes usa PUT para agregar
-  return await http("/api/auth/favorites/${userId"}, {
+  return await http("/api/auth/favorites/${userId}", {
     method: "PUT", 
     body: { recipeId },
   });
@@ -129,7 +129,7 @@ export async function addFavorite(userId, recipeId) {
 export async function removeFavorite(userId, recipeId) {
   // Corregida sintaxis de comillas invertidas
   // authRoutes usa DELETE para eliminar
-  return await http("/api/auth/favorites/${userId"}, {
+  return await http("/api/auth/favorites/${userId}", {
     method: "DELETE",
     body: { recipeId },
   });
