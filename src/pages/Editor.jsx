@@ -7,27 +7,29 @@ import EditorToolbar from "../components/EditorToolbar";
 import AdminRecipeForm from "../components/AdminRecipeForm";
 
 export default function Editor() {
-  const { role, setRole } = useContext(AuthContext);
+  const { role, setRole, token } = useContext(AuthContext);
   const isAdmin = String(role).toLowerCase() === "admin";
 
   const [all, setAll] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const data = await getRecipes();
+        const data = await getRecipes({ token });
         setAll(Array.isArray(data) ? data : []);
       } catch (e) {
         console.error("Error cargando recetas:", e);
+        setError("No se pudieron cargar las recetas.");
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [token]);
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -37,38 +39,38 @@ export default function Editor() {
 
   async function handleCreate(payload) {
     try {
-      const created = await createRecipe(payload);
+      const created = await createRecipe(payload, { token });
       setAll((prev) => [created, ...prev]);
       setEditing(null);
       alert("Receta creada");
     } catch (e) {
-      alert("No se pudo crear la receta");
       console.error(e);
+      alert("No se pudo crear la receta");
     }
   }
 
   async function handleUpdate(id, payload) {
     try {
-      const updated = await updateRecipe(id, payload);
+      const updated = await updateRecipe(id, payload, { token });
       setAll((prev) => prev.map((r) => (String(r.id) === String(id) ? updated : r)));
       setEditing(null);
       alert("Receta actualizada");
     } catch (e) {
-      alert("No se pudo actualizar la receta");
       console.error(e);
+      alert("No se pudo actualizar la receta");
     }
   }
 
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar esta receta?")) return;
     try {
-      await deleteRecipe(id);
+      await deleteRecipe(id, { token });
       setAll((prev) => prev.filter((r) => String(r.id) !== String(id)));
       if (editing && String(editing.id) === String(id)) setEditing(null);
       alert("Receta eliminada");
     } catch (e) {
-      alert("No se pudo eliminar la receta");
       console.error(e);
+      alert("No se pudo eliminar la receta");
     }
   }
 
@@ -78,12 +80,8 @@ export default function Editor() {
         <div className="panel">
           <div className="panel-inner" style={{ display: "grid", gap: 10 }}>
             <h1 className="page-title">Editor</h1>
-            <p>
-              Necesitas el rol <strong>admin</strong> para gestionar recetas.
-            </p>
-            <button className="btn" onClick={() => setRole("admin")}>
-              Cambiar a Admin
-            </button>
+            <p>Necesitas el rol <strong>admin</strong> para gestionar recetas.</p>
+            <button className="btn" onClick={() => setRole("admin")}>Cambiar a Admin</button>
           </div>
         </div>
       </div>
@@ -93,20 +91,16 @@ export default function Editor() {
   return (
     <div id="editor" className="container">
       <h1 className="page-title">Editor de Recetas</h1>
-
       <EditorToolbar onNew={() => setEditing({})} query={query} setQuery={setQuery} />
 
       <div className="editor-layout">
         <section className="panel">
           <div className="panel-inner">
+            {error && <div style={{ color: "var(--danger)", marginBottom: 10 }}>{error}</div>}
             {loading ? (
-              <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px 0" }}>
-                Cargando…
-              </div>
+              <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px 0" }}>Cargando…</div>
             ) : list.length === 0 ? (
-              <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px 0" }}>
-                Sin resultados
-              </div>
+              <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px 0" }}>Sin resultados</div>
             ) : (
               <ul className="editor-list">
                 {list.map((r) => {
@@ -119,12 +113,8 @@ export default function Editor() {
                         <small>⏱ {r.cookTime} min · {r.difficulty}</small>
                       </div>
                       <div className="editor-list-item-actions">
-                        <button className="btn-outline" onClick={() => setEditing(r)}>
-                          Editar
-                        </button>
-                        <button className="btn-outline" onClick={() => handleDelete(r.id)}>
-                          Eliminar
-                        </button>
+                        <button className="btn-outline" onClick={() => setEditing(r)}>Editar</button>
+                        <button className="btn-outline" onClick={() => handleDelete(r.id)}>Eliminar</button>
                       </div>
                     </li>
                   );
@@ -142,6 +132,7 @@ export default function Editor() {
               onSubmit={(payload) =>
                 editing?.id ? handleUpdate(editing.id, payload) : handleCreate(payload)
               }
+              submitLabel={editing?.id ? "Actualizar" : "Crear receta"}
             />
           ) : (
             <div className="panel">

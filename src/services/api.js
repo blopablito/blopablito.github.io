@@ -146,3 +146,36 @@ export async function deleteComment(commentId, userId) {
     body: { userId },
   });
 }
+
+// src/services/api.js
+const BASE = "/api"; // ajusta a tu base real
+
+async function request(path, { method = "GET", body, token } = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${BASE}${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!res.ok) {
+    const msg = await res.text().catch(() => "");
+    throw new Error(msg || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function getRecipes({ token } = {}) {
+  return request("/recipes", { token });
+}
+export async function createRecipe(payload, { token } = {}) {
+  return request("/recipes", { method: "POST", body: payload, token });
+}
+export async function updateRecipe(id, payload, { token } = {}) {
+  return request(`/recipes/${id}`, { method: "PUT", body: payload, token });
+}
+export async function deleteRecipe(id, { token } = {}) {
+  return request(`/recipes/${id}`, { method: "DELETE", token });
+}
