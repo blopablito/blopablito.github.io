@@ -3,155 +3,157 @@ import { useEffect, useMemo, useState } from "react";
 
 const DIFFICULTIES = ["fácil", "media", "difícil"];
 
-export default function AdminRecipeForm({ initial = null, onSubmit, onCancel }) {
-  const [name, setName] = useState(initial?.name ?? "");
-  const [description, setDescription] = useState(initial?.description ?? "");
-  const [image, setImage] = useState(initial?.image ?? "");
-  const [cookTime, setCookTime] = useState(initial?.cookTime ?? 0);
-  const [servings, setServings] = useState(initial?.servings ?? 1);
-  const [difficulty, setDifficulty] = useState(initial?.difficulty ?? "media");
-  const [category, setCategory] = useState(initial?.category ?? "");
-  const [ingredients, setIngredients] = useState(initial?.ingredients ?? []);
-  const [instructions, setInstructions] = useState(initial?.instructions ?? []);
-  const [restrictions, setRestrictions] = useState(initial?.restrictions ?? []);
-  const [error, setError] = useState("");
-
-  useEffect(() => { setError(""); }, [name, description, image, cookTime, servings, difficulty, category, ingredients, instructions, restrictions]);
-
-  const payload = useMemo(() => ({
-    name, description, image, cookTime, servings, difficulty, category,
-    ingredients, instructions, restrictions,
-  }), [name, description, image, cookTime, servings, difficulty, category, ingredients, instructions, restrictions]);
-
-  const handleAddToList = (setter, value) => {
-    const v = value.trim();
-    if (!v) return;
-    setter((prev) => [...prev, v]);
+// 🔎 Normaliza dificultad entre frontend y backend
+function normalizeDifficulty(val) {
+  const map = {
+    fácil: "easy",
+    media: "medium",
+    intermedio: "medium",
+    difícil: "hard",
+    easy: "easy",
+    medium: "medium",
+    hard: "hard",
   };
-  const handleRemoveFromList = (setter, idx) => {
-    setter((prev) => prev.filter((_, i) => i !== idx));
-  };
+  return map[String(val).toLowerCase()] || "medium";
+}
 
-  const validate = () => {
-    if (!name.trim()) return "El nombre es obligatorio";
-    if (!description.trim()) return "La descripción es obligatoria";
-    if (!Number.isFinite(Number(cookTime)) || cookTime < 0) return "Tiempo de cocción inválido";
-    if (!Number.isFinite(Number(servings)) || servings <= 0) return "Porciones inválidas";
-    if (!DIFFICULTIES.includes(String(difficulty).toLowerCase())) return "Dificultad inválida";
-    if (ingredients.length === 0) return "Agrega al menos un ingrediente";
-    if (instructions.length === 0) return "Agrega al menos un paso";
-    return "";
-  };
+export default function AdminRecipeForm({
+  initial = null,
+  onSubmit,
+  onCancel,
+}) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
+  const [cookTime, setCookTime] = useState("");
+  const [servings, setServings] = useState("1");
+  const [difficulty, setDifficulty] = useState("media");
+  const [category, setCategory] = useState("");
+  const [ingredients, setIngredients] = useState([]);
+  const [instructions, setInstructions] = useState([]);
+  const [restrictions, setRestrictions] = useState([]);
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = async (e) => {
+  // 🔎 Cargar datos iniciales si estamos editando
+  useEffect(() => {
+    if (!initial) return;
+    setName(initial.name || "");
+    setDescription(initial.description || "");
+    setImage(initial.image || "");
+    setCookTime(String(initial.cookTime ?? ""));
+    setServings(String(initial.servings ?? "1"));
+    setDifficulty(initial.difficulty || "media");
+    setCategory(initial.category || "");
+    setIngredients(initial.ingredients || []);
+    setInstructions(initial.instructions || []);
+    setRestrictions(initial.restrictions || []);
+  }, [initial]);
+
+  // 🔎 Validación
+  const valid = useMemo(() => {
+    const e = {};
+    if (!name.trim()) e.name = "Título requerido";
+    const m = Number(cookTime);
+    if (!cookTime || Number.isNaN(m) || m <= 0) e.cookTime = "Minutos inválidos";
+    const s = Number(servings);
+    if (!servings || Number.isNaN(s) || s <= 0) e.servings = "Porciones inválidas";
+
+    // Normalizamos antes de validar
+    const diff = normalizeDifficulty(difficulty);
+    if (!["easy", "medium", "hard"].includes(diff)) {
+      e.difficulty = "Dificultad inválida";
+    }
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }, [name, cookTime, servings, difficulty]);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const err = validate();
-    if (err) { setError(err); return; }
-    await onSubmit?.(payload);
+    if (!valid) return;
+    const payload = {
+      name: name.trim(),
+      description: description.trim(),
+      image: image.trim(),
+      cookTime: Number(cookTime),
+      servings: Number(servings),
+      difficulty: normalizeDifficulty(difficulty), // 🔎 aquí ya normalizado
+      category: category.trim(),
+      ingredients,
+      instructions,
+      restrictions,
+    };
+    onSubmit?.(payload);
   };
-
-  const [ingInput, setIngInput] = useState("");
-  const [instInput, setInstInput] = useState("");
-  const [tagInput, setTagInput] = useState("");
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Nombre</label>
-        <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Nombre de la receta" />
-      </div>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Descripción</label>
-        <textarea value={description} onChange={(e)=>setDescription(e.target.value)} placeholder="Describe la receta" rows={3} />
-      </div>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Imagen (URL)</label>
-        <input value={image} onChange={(e)=>setImage(e.target.value)} placeholder="https://..." />
-      </div>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Tiempo de cocción (min)</label>
-        <input type="number" value={cookTime} onChange={(e)=>setCookTime(Number(e.target.value))} min={0} />
-      </div>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Porciones</label>
-        <input type="number" value={servings} onChange={(e)=>setServings(Number(e.target.value))} min={1} />
-      </div>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Dificultad</label>
-        <select value={difficulty} onChange={(e)=>setDifficulty(e.target.value)}>
-          {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
-        </select>
-      </div>
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Categoría</label>
-        <input value={category} onChange={(e)=>setCategory(e.target.value)} placeholder="Postre, Plato principal..." />
-      </div>
-
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Ingredientes</label>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={ingInput} onChange={(e)=>setIngInput(e.target.value)} placeholder="Agregar ingrediente" />
-          <button type="button" className="btn" onClick={() => { handleAddToList(setIngredients, ingInput); setIngInput(""); }}>
-            Añadir
-          </button>
+    <form onSubmit={handleSubmit} className="panel">
+      <div className="panel-inner" style={{ display: "grid", gap: 16 }}>
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Título</strong></label>
+          <input value={name} onChange={(e) => setName(e.target.value)} />
+          {errors.name && <small style={{ color: "var(--danger)" }}>{errors.name}</small>}
         </div>
-        <ul>
-          {ingredients.map((ing, idx) => (
-            <li key={idx} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <span>{idx + 1}. {ing}</span>
-              <button type="button" className="btn-outline" onClick={() => handleRemoveFromList(setIngredients, idx)}>
-                Quitar
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
 
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Pasos</label>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={instInput} onChange={(e)=>setInstInput(e.target.value)} placeholder="Agregar paso" />
-          <button type="button" className="btn" onClick={() => { handleAddToList(setInstructions, instInput); setInstInput(""); }}>
-            Añadir
-          </button>
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Descripción</strong></label>
+          <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
-        <ul>
-          {instructions.map((step, idx) => (
-            <li key={idx} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <span>{idx + 1}. {step}</span>
-              <button type="button" className="btn-outline" onClick={() => handleRemoveFromList(setInstructions, idx)}>
-                Quitar
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
 
-      <div style={{ display: "grid", gap: 6 }}>
-        <label>Etiquetas (restricciones)</label>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input value={tagInput} onChange={(e)=>setTagInput(e.target.value)} placeholder="vegano, sin gluten..." />
-          <button type="button" className="btn" onClick={() => { handleAddToList(setRestrictions, tagInput); setTagInput(""); }}>
-            Añadir
-          </button>
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Imagen (URL)</strong></label>
+          <input value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://..." />
         </div>
-        <ul>
-          {restrictions.map((t, idx) => (
-            <li key={idx} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-              <span>{t}</span>
-              <button type="button" className="btn-outline" onClick={() => handleRemoveFromList(setRestrictions, idx)}>
-                Quitar
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
 
-      {error && <div style={{ color: "var(--danger)" }}>{error}</div>}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+          <div>
+            <label><strong>Minutos</strong></label>
+            <input type="number" min="1" value={cookTime} onChange={(e) => setCookTime(e.target.value)} />
+            {errors.cookTime && <small style={{ color: "var(--danger)" }}>{errors.cookTime}</small>}
+          </div>
+          <div>
+            <label><strong>Porciones</strong></label>
+            <input type="number" min="1" value={servings} onChange={(e) => setServings(e.target.value)} />
+            {errors.servings && <small style={{ color: "var(--danger)" }}>{errors.servings}</small>}
+          </div>
+          <div>
+            <label><strong>Dificultad</strong></label>
+            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+              {DIFFICULTIES.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+            {errors.difficulty && <small style={{ color: "var(--danger)" }}>{errors.difficulty}</small>}
+          </div>
+        </div>
 
-      <div style={{ display: "flex", gap: 8 }}>
-        <button type="submit" className="btn">{initial ? "Guardar cambios" : "Crear receta"}</button>
-        <button type="button" className="btn-outline" onClick={onCancel}>Cancelar</button>
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Categoría</strong></label>
+          <input value={category} onChange={(e) => setCategory(e.target.value)} />
+        </div>
+
+        {/* Ingredientes */}
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Ingredientes</strong></label>
+          <textarea rows={6} value={ingredients.join("\n")} onChange={(e) => setIngredients(e.target.value.split("\n").filter(Boolean))} />
+        </div>
+
+        {/* Instrucciones */}
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Pasos / Instrucciones</strong></label>
+          <textarea rows={8} value={instructions.join("\n")} onChange={(e) => setInstructions(e.target.value.split("\n").filter(Boolean))} />
+        </div>
+
+        {/* Restricciones */}
+        <div style={{ display: "grid", gap: 8 }}>
+          <label><strong>Restricciones</strong></label>
+          <textarea rows={4} value={restrictions.join("\n")} onChange={(e) => setRestrictions(e.target.value.split("\n").filter(Boolean))} />
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          {onCancel && <button type="button" className="btn-outline" onClick={onCancel}>Cancelar</button>}
+          <button className="btn" type="submit">Guardar</button>
+        </div>
       </div>
     </form>
   );
