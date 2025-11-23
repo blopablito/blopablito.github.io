@@ -97,20 +97,52 @@ export async function registerUser({ email, password, username, birthday, gender
 
 
 export async function getUserFavorites(userId) {
-  const data = await http(`/api/favorites/${userId}`);
-  return Array.isArray(data) ? data.map(mapRecipe) : [];
+
+  const favoritesData = await http(`/api/auth/favorites/${userId}`);
+  
+  if (Array.isArray(favoritesData)) {
+    const promises = favoritesData.map(item => getRecipeById(item.recipe_id));
+    
+    const recipes = await Promise.all(promises);
+    
+    return recipes.filter(r => r && r.id);
+  }
+  
+  return [];
 }
 
 export async function addFavorite(userId, recipeId) {
-  return await http(`/api/favorites/${userId}`, {
-    method: "POST",
+  return await http(`/api/auth/favorites/${userId}`, {
+    method: "PUT", 
     body: { recipeId },
   });
 }
 
 export async function removeFavorite(userId, recipeId) {
-  return await http(`/api/favorites/${userId}`, {
+  return await http(`/api/auth/favorites/${userId}`, {
     method: "DELETE",
     body: { recipeId },
+  });
+}
+
+// === Comentarios ===
+
+export async function getComments(recipeId) {
+  return http(`/api/comments/${recipeId}`, {
+    method: "GET",
+  });
+}
+
+export async function addComment(recipeId, { content, userId }) {
+  return http(`/api/comments/${recipeId}`, {
+    method: "POST",
+    body: { content, userId },
+  });
+}
+
+export async function deleteComment(commentId, userId) {
+  return http(`/api/comments/${commentId}`, {
+    method: "DELETE",
+    body: { userId },
   });
 }
