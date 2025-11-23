@@ -16,11 +16,12 @@ export default function Editor() {
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState("");
 
+  // 🔎 Cargar recetas al montar
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const data = await getRecipes({ token });
+        const data = await getRecipes(token);
         setAll(Array.isArray(data) ? data : []);
       } catch (e) {
         console.error("Error cargando recetas:", e);
@@ -31,49 +32,54 @@ export default function Editor() {
     })();
   }, [token]);
 
+  // 🔎 Filtrar recetas por búsqueda
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return all;
     return all.filter((r) => r.name?.toLowerCase().includes(q));
   }, [all, query]);
 
+  // 🔎 Crear receta
   async function handleCreate(payload) {
     try {
-      const created = await createRecipe(payload, { token });
+      const created = await createRecipe(payload, token);
       setAll((prev) => [created, ...prev]);
       setEditing(null);
-      alert("Receta creada");
+      alert("Receta creada correctamente");
     } catch (e) {
       console.error(e);
       alert("No se pudo crear la receta");
     }
   }
 
+  // 🔎 Actualizar receta
   async function handleUpdate(id, payload) {
     try {
-      const updated = await updateRecipe(id, payload, { token });
+      const updated = await updateRecipe(id, payload, token);
       setAll((prev) => prev.map((r) => (String(r.id) === String(id) ? updated : r)));
       setEditing(null);
-      alert("Receta actualizada");
+      alert("Receta actualizada correctamente");
     } catch (e) {
       console.error(e);
       alert("No se pudo actualizar la receta");
     }
   }
 
+  // 🔎 Eliminar receta
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar esta receta?")) return;
     try {
-      await deleteRecipe(id, { token });
+      await deleteRecipe(id, token);
       setAll((prev) => prev.filter((r) => String(r.id) !== String(id)));
       if (editing && String(editing.id) === String(id)) setEditing(null);
-      alert("Receta eliminada");
+      alert("Receta eliminada correctamente");
     } catch (e) {
       console.error(e);
       alert("No se pudo eliminar la receta");
     }
   }
 
+  // 🔎 Si no es admin, mostrar aviso
   if (!isAdmin) {
     return (
       <div className="container">
@@ -88,9 +94,11 @@ export default function Editor() {
     );
   }
 
+  // 🔎 Vista principal
   return (
     <div id="editor" className="container">
       <h1 className="page-title">Editor de Recetas</h1>
+
       <EditorToolbar onNew={() => setEditing({})} query={query} setQuery={setQuery} />
 
       <div className="editor-layout">
