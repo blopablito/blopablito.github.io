@@ -1,5 +1,6 @@
 // src/pages/Home.jsx
 import { useEffect, useMemo, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import Board from "../components/Board";
 import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
@@ -15,6 +16,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
   const [favIds, setFavIds] = useState(() => (user ? getFavIds(user.id) : []));
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -39,9 +41,10 @@ export default function Home() {
     const q = query.trim().toLowerCase();
 
     if (q) {
-      list = list.filter((r) =>
-        r.name?.toLowerCase().includes(q) ||
-        r.ingredients?.some?.((i) => i.toLowerCase().includes(q))
+      list = list.filter(
+        (r) =>
+          r.name?.toLowerCase().includes(q) ||
+          r.ingredients?.some?.((i) => i.toLowerCase().includes(q))
       );
     }
 
@@ -77,10 +80,18 @@ export default function Home() {
     return list;
   }, [recipes, query, filters]);
 
+  // 🔎 Corregido: feedback y redirección al Home
   const handleFav = (receta) => {
     if (!user) return alert("Inicia sesión para guardar favoritos");
-    const { ids } = toggleFav(user.id, receta);
-    setFavIds(ids);
+    try {
+      const { ids } = toggleFav(user.id, receta);
+      setFavIds(ids);
+      alert("Se añadió correctamente a favoritos"); // feedback inmediato
+      navigate("/"); // redirige al Home
+    } catch (e) {
+      console.error("Error al añadir favorito:", e);
+      alert("No se pudo añadir a favoritos");
+    }
   };
 
   const header = (
@@ -95,11 +106,23 @@ export default function Home() {
   const left = (
     <>
       {loading ? (
-        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--muted)" }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "60px 0",
+            color: "var(--muted)",
+          }}
+        >
           Cargando recetas...
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0", color: "var(--muted)" }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "60px 0",
+            color: "var(--muted)",
+          }}
+        >
           No se encontraron recetas
         </div>
       ) : (
