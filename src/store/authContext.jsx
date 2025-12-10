@@ -6,13 +6,12 @@ import {
   useMemo,
   useState,
 } from "react";
-import { loginUser, registerUser } from "../services/api";
+import { loginUser, registerUser, updateUser } from "../services/api";
 
 export const AuthContext = createContext({});
 
 const STORAGE_KEY = "recetario_session_v1";
 
-// 🔎 Carga inicial desde localStorage
 function loadInitialSession() {
   if (typeof window === "undefined") return null;
   try {
@@ -30,27 +29,6 @@ function loadInitialSession() {
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(() => loadInitialSession());
 
-  // 🔎 Validar token al iniciar
-  useEffect(() => {
-    async function validateSession() {
-      if (!session?.token) return;
-      try {
-        const res = await fetch("/api/validate", {
-          headers: { Authorization: `Bearer ${session.token}` },
-        });
-        if (!res.ok) {
-          setSession(null);
-          window.localStorage.removeItem(STORAGE_KEY);
-        }
-      } catch {
-        setSession(null);
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-    validateSession();
-  }, []);
-
-  // 🔎 Sincronizar cambios con localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (session) {
@@ -61,58 +39,86 @@ export function AuthProvider({ children }) {
   }, [session]);
 
   const login = useCallback(async ({ email, password }) => {
-    const res = await loginUser({ email, password });
-    const role = res.user?.is_admin ? "admin" : "user";
-    const user = {
-      id: res.user?.id,
-      email: res.user?.email,
-      username: res.user?.username,
-      role,
-      avatarUrl: res.user?.avatarUrl || null,
-    };
-    setSession({ user, token: res.token });
-    return res;
+    try {
+      const res = await loginUser({ email, password });
+      const role = res.user?.is_admin ? "admin" : "user";
+      const user = {
+        id: res.user?.id,
+        email: res.user?.email,
+        username: res.user?.username,
+        name: res.user?.name || res.user?.username,
+        role,
+        avatarUrl: res.user?.avatarUrl || null,
+      };
+      setSession({ user, token: res.token });
+      return { success: true, ...res };
+    } catch (error) {
+       console.error(error);
+       throw error; 
+    }
   }, []);
 
   const register = useCallback(async (data) => {
-    const res = await registerUser(data);
-    const role = res.user?.is_admin ? "admin" : "user";
-    const user = {
-      id: res.user?.id,
-      email: res.user?.email,
-      username: res.user?.username,
-      role,
-      avatarUrl: res.user?.avatarUrl || null,
-    };
-    setSession({ user, token: res.token });
-    return res;
+    try {
+      const res = await registerUser(data);
+      const role = res.user?.is_admin ? "admin" : "user";
+      const user = {
+        id: res.user?.id,
+        email: res.user?.email,
+        username: res.user?.username,
+        name: res.user?.name || res.user?.username,
+        role,
+        avatarUrl: res.user?.avatarUrl || null,
+      };
+      setSession({ user, token: res.token });
+      return { success: true, ...res };
+    } catch (error) {
+       console.error(error);
+       throw error;
+    }
   }, []);
+
+  // === CORRECCIÓN AQUÍ: Evitamos que devuelva undefined ===
+  const updateProfile = useCallback(async (userId, data) => {
+    if (!session?.token) {
+        return { success: false, msg: "No hay sesión activa" };
+    }
+
+    try {
+        const updatedUserRaw = await updateUser(userId, data, session.token);
+        
+        setSession((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                user: { ...prev.user, ...updatedUserRaw }
+            };
+        });
+        
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating profile", error);
+        return { success: false, msg: error.message || "Error al actualizar" };
+    }
+  }, [session]);
 
   const logout = useCallback(() => {
     setSession(null);
-  }, []);
-
-  const setRole = useCallback((nextRole) => {
-    setSession((prev) => {
-      if (!prev || !prev.user) return prev;
-      return {
-        ...prev,
-        user: { ...prev.user, role: nextRole },
-      };
-    });
+    window.localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   const value = useMemo(
     () => ({
       user: session?.user || null,
       role: session?.user?.role || "guest",
+      isAuthenticated: !!session?.user,
       token: session?.token || null,
       login,
       register,
       logout,
-      setRole,
+      updateProfile
     }),
-    [session, login, register, logout, setRole]
+    [session, login, register, logout, updateProfile]
   );
 
   return (

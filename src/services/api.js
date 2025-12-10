@@ -34,7 +34,7 @@ function mapRecipe(r = {}) {
     image: absolutizeImage(r.image),
     cookTime: Number(r.cookTime ?? 0),
     servings: Number(r.servings ?? 0),
-    difficulty: r.difficulty, // 🔎 se mantiene tal cual: "Fácil", "Intermedio", "Difícil"
+    difficulty: r.difficulty,
     category: r.category || "",
     restrictions: r.restrictions || "",
     ingredients: Array.isArray(r.ingredients) ? r.ingredients : [],
@@ -82,6 +82,13 @@ export async function loginUser({ email, password }) {
 export async function registerUser({ email, password, username, birthday, gender }) {
   const body = { email, password, username, birthday: birthday || null, gender: gender || null };
   return await http("/api/auth/register", { method: "POST", body });
+}
+
+// === Usuarios (Perfil) ===
+// Esta función es vital para que funcione el guardado de perfil
+export async function updateUser(userId, payload, token) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    return await http(`/api/users/${userId}`, { method: "PUT", body: payload, headers });
 }
 
 // === Favoritos ===
