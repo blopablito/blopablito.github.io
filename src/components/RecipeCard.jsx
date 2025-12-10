@@ -32,7 +32,6 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
         setToastMsg("Se guardó en favoritos");
       }
       if (onFav) await onFav();
-      
     } catch (e) {
       console.error("Error al actualizar favorito:", e);
       setToastMsg("No se pudo actualizar favoritos");
@@ -51,7 +50,10 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
   };
 
   return (
-    <div className="recipe-card">
+    <div className="recipe-card" style={{ 
+        border: "1px solid white", // CORRECCIÓN: Borde blanco solicitado
+        overflow: "hidden" 
+    }}>
       <Link to={`/receta/${receta.id}`}>
         <img src={receta.image} alt={receta.name} className="recipe-image" />
       </Link>
@@ -62,17 +64,31 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
         <p><strong>Tiempo:</strong> {receta.cookTime} min</p>
         <p><strong>Dificultad:</strong> {capitalize(receta.difficulty)}</p>
         <p><strong>Tipo:</strong> {receta.category}</p>
+        
+        {/* CORRECCIÓN: Etiquetas con estilo visual (Pastillas azules) */}
         {receta.restrictions?.length > 0 && (
-          <p>
-            <strong>Etiquetas:</strong>{" "}
-            {receta.restrictions.map((tag, idx) => (
-              <span key={idx} className="tag">{capitalize(tag)}</span>
-            ))}
-          </p>
+          <div style={{ marginTop: 8 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {receta.restrictions.map((tag, idx) => (
+                <span key={idx} style={{
+                    backgroundColor: "#e3f2fd",
+                    color: "#1976d2",
+                    padding: "2px 10px",
+                    borderRadius: 12,
+                    fontSize: "0.85rem",
+                    fontWeight: "500",
+                    display: "inline-block"
+                }}>
+                    {capitalize(tag)}
+                </span>
+              ))}
+            </div>
+          </div>
         )}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: "auto" }}>
+
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: "auto", paddingTop: 12 }}>
           <button className={`btn ${isFav ? "btn-danger" : ""}`} onClick={handleFav} style={isFav ? {backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", color: "white"} : {}}>
-            {isFav ? "Quitar Favorito" : "Favorito"}
+            {isFav ? "Quitar" : "Favorito"}
           </button>
           <button className="btn-outline" onClick={handleDownloadRDF}>
             RDF
