@@ -84,7 +84,8 @@ export async function registerUser({ email, password, username, birthday, gender
   return await http("/api/auth/register", { method: "POST", body });
 }
 
-// === Usuarios (Perfil) - ESTO ES LO QUE FALTABA ===
+// === Usuarios (Perfil) ===
+// ESTA ES LA FUNCIÓN QUE TE FALTA EN api.js
 export async function updateUser(userId, payload, token) {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     return await http(`/api/users/${userId}`, { method: "PUT", body: payload, headers });

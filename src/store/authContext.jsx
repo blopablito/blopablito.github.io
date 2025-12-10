@@ -6,8 +6,11 @@ import {
   useMemo,
   useState,
 } from "react";
-// Asegúrate de importar updateUser aquí abajo
-import { loginUser, registerUser, updateUser } from "../services/api";
+
+// === CORRECCIÓN AQUÍ: Asegúrate de agregar 'updateUser' a esta lista ===
+import { loginUser, registerUser, updateUser } from "../services/api"; 
+
+// ... el resto del archivo sigue igual ...
 
 export const AuthContext = createContext({});
 
