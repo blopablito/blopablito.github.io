@@ -1,4 +1,3 @@
-// src/services/api.js
 const BASE_URL = process.env.REACT_APP_API_BASE || "https://recetario-app-backend.onrender.com";
 
 async function http(path, { method = "GET", headers, body } = {}) {
@@ -44,7 +43,6 @@ function mapRecipe(r = {}) {
 
 const mapList = (arr) => (Array.isArray(arr) ? arr.map(mapRecipe) : []);
 
-// === Recetas ===
 export async function getRecipes(token) {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const data = await http("/api/recipes", { headers });
@@ -74,7 +72,6 @@ export async function deleteRecipe(id, token) {
   return await http(`/api/recipes/${id}`, { method: "DELETE", headers });
 }
 
-// === Autenticación ===
 export async function loginUser({ email, password }) {
   return await http("/api/auth/login", { method: "POST", body: { email, password } });
 }
@@ -84,14 +81,12 @@ export async function registerUser({ email, password, username, birthday, gender
   return await http("/api/auth/register", { method: "POST", body });
 }
 
-// === Usuarios (Perfil) ===
-// ESTA ES LA FUNCIÓN QUE TE FALTA EN api.js
+// Función requerida para el perfil
 export async function updateUser(userId, payload, token) {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     return await http(`/api/users/${userId}`, { method: "PUT", body: payload, headers });
 }
 
-// === Favoritos ===
 export async function getUserFavorites(userId, token) {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const favoritesData = await http(`/api/favorites/${userId}`, { headers });
@@ -114,7 +109,6 @@ export async function removeFavorite(userId, recipeId, token) {
   return await http(`/api/favorites/${userId}`, { method: "DELETE", body: { recipeId }, headers });
 }
 
-// === Comentarios ===
 export async function getComments(recipeId) {
   return http(`/api/comments/${recipeId}`, { method: "GET" });
 }

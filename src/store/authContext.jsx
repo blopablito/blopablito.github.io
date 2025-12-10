@@ -1,4 +1,3 @@
-// src/store/authContext.jsx
 import {
   createContext,
   useCallback,
@@ -6,11 +5,7 @@ import {
   useMemo,
   useState,
 } from "react";
-
-// === CORRECCIÓN AQUÍ: Asegúrate de agregar 'updateUser' a esta lista ===
-import { loginUser, registerUser, updateUser } from "../services/api"; 
-
-// ... el resto del archivo sigue igual ...
+import { loginUser, registerUser, updateUser } from "../services/api";
 
 export const AuthContext = createContext({});
 
@@ -82,7 +77,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // === ESTO ES LO QUE NO TIENES ===
+  // Función segura para actualizar
   const updateProfile = useCallback(async (userId, data) => {
     if (!session?.token) {
         return { success: false, msg: "No hay sesión activa" };
@@ -120,7 +115,7 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
-      updateProfile // <--- ¡Asegúrate de que esto esté aquí!
+      updateProfile
     }),
     [session, login, register, logout, updateProfile]
   );
