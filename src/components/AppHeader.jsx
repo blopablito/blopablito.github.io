@@ -1,7 +1,7 @@
 // src/components/AppHeader.jsx
 import { useEffect, useState, useContext } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { AuthContext } from "../store/authContext"; // Importación correcta
+import { AuthContext } from "../store/authContext";
 
 const Icon = {
   Home: (p) => (
@@ -35,10 +35,10 @@ const Icon = {
 };
 
 export default function AppHeader() {
-  const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
+  // CAMBIO: Quitamos 'open' de aquí porque no se usaba. Dejamos el espacio vacío para mantener setOpen.
+  const [, setOpen] = useState(false);
   
-  // Uso seguro del contexto
+  const { pathname } = useLocation();
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
   const role = user?.role;
@@ -63,7 +63,6 @@ export default function AppHeader() {
           </NavLink>
           <NavLink to="/cuenta" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>
             <Icon.User /> 
-            {/* Muestra el nombre si existe, sino 'Cuenta' */}
             {user ? (user.name || user.username || "Cuenta") : "Cuenta"}
           </NavLink>
           <NavLink to="/acerca" className={linkClass} style={{display:"inline-flex",alignItems:"center",gap:6}}>

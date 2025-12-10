@@ -1,23 +1,25 @@
 // src/pages/Home.jsx
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useEffect, useMemo, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Board from "../components/Board";
 import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
 import RecipeCard from "../components/RecipeCard";
-import { getRecipes } from "../services/api";
+import { getRecipes, getUserFavorites } from "../services/api"; // Usamos la API real
 import { AuthContext } from "../store/authContext";
-import { toggleFav, getFavIds } from "../store/FavsStore";
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(true);
-  const { user } = useContext(AuthContext);
-  const [favIds, setFavIds] = useState(() => (user ? getFavIds(user.id) : []));
+  
+  // Obtenemos user y token del contexto
+  const { user, token } = useContext(AuthContext);
+  const [favIds, setFavIds] = useState([]); // Inicializamos siempre como array vacío
   const navigate = useNavigate();
 
+  // Cargar Recetas
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -32,9 +34,32 @@ export default function Home() {
     })();
   }, []);
 
+  // Función para cargar favoritos desde la API
+  const loadFavorites = useCallback(async () => {
+    if (user && token) {
+        try {
+            const favs = await getUserFavorites(user.id, token);
+            // Extraemos solo los IDs para saber cuáles marcar
+            const ids = favs.map(r => String(r.id));
+            setFavIds(ids);
+        } catch (e) {
+            console.error("Error cargando favoritos", e);
+        }
+    } else {
+        setFavIds([]);
+    }
+  }, [user, token]);
+
+  // Cargar favoritos al inicio o cuando cambia el usuario
   useEffect(() => {
-    if (user) setFavIds(getFavIds(user.id));
-  }, [user]);
+    loadFavorites();
+  }, [loadFavorites]);
+
+  // Callback que se ejecuta cuando RecipeCard cambia un favorito
+  const handleFavChange = async () => {
+     // Simplemente recargamos la lista para estar sincronizados
+     await loadFavorites();
+  };
 
   const filtered = useMemo(() => {
     let list = recipes;
@@ -80,20 +105,6 @@ export default function Home() {
     return list;
   }, [recipes, query, filters]);
 
-  // 🔎 Corregido: feedback y redirección al Home
-  const handleFav = (receta) => {
-    if (!user) return alert("Inicia sesión para guardar favoritos");
-    try {
-      const { ids } = toggleFav(user.id, receta);
-      setFavIds(ids);
-      alert("Se añadió correctamente a favoritos"); // feedback inmediato
-      navigate("/"); // redirige al Home
-    } catch (e) {
-      console.error("Error al añadir favorito:", e);
-      alert("No se pudo añadir a favoritos");
-    }
-  };
-
   const header = (
     <SearchBar
       value={query}
@@ -131,8 +142,8 @@ export default function Home() {
             <RecipeCard
               key={rec.id}
               receta={rec}
-              onFav={handleFav}
-              isFav={favIds.includes(String(rec.id))}
+              onFav={handleFavChange} // Pasamos la función de recarga
+              isFav={favIds.includes(String(rec.id))} // Verificamos si es favorito de forma segura
             />
           ))}
         </div>

@@ -1,4 +1,5 @@
-import { useState, useContext } from "react";
+// src/components/RecipeCard.jsx
+import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Toast from "./Toast";
 import { AuthContext } from "../store/authContext";
@@ -8,9 +9,15 @@ const capitalize = (s) =>
   typeof s === "string" && s.length ? s[0].toUpperCase() + s.slice(1) : s;
 
 export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
-  const { user } = useContext(AuthContext);
+  // CAMBIO: Obtenemos también el token
+  const { user, token } = useContext(AuthContext);
   const [isFav, setIsFav] = useState(initialFav);
   const [toastMsg, setToastMsg] = useState("");
+
+  // Sincronizar estado si las props cambian (importante para búsquedas)
+  useEffect(() => {
+    setIsFav(initialFav);
+  }, [initialFav]);
 
   const handleFav = async () => {
     if (!user) {
@@ -19,15 +26,19 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
     }
     try {
       if (isFav) {
-        await removeFavorite(user.id, receta.id);
+        // CAMBIO: Pasamos el token a la función de la API
+        await removeFavorite(user.id, receta.id, token);
         setIsFav(false);
         setToastMsg("Se quitó de favoritos");
       } else {
-        await addFavorite(user.id, receta.id);
+        // CAMBIO: Pasamos el token a la función de la API
+        await addFavorite(user.id, receta.id, token);
         setIsFav(true);
         setToastMsg("Se guardó en favoritos");
       }
-      onFav && (await onFav());
+      // Notificamos al padre (Home) para que actualice su lista
+      if (onFav) await onFav();
+      
     } catch (e) {
       console.error("Error al actualizar favorito:", e);
       setToastMsg("No se pudo actualizar favoritos");
@@ -35,7 +46,9 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
   };
 
   const handleDownloadRDF = () => {
-    const url = `${process.env.REACT_APP_API_BASE || "https://recetario-app-backend.onrender.com"}/rdf/${receta.id}`;
+    // Ajusta la URL base según tu entorno
+    const API_BASE = "https://recetario-app-backend.onrender.com";
+    const url = `${API_BASE}/rdf/${receta.id}`;
     const link = document.createElement("a");
     link.href = url;
     link.download = `receta-${receta.id}.rdf`; 
@@ -64,12 +77,12 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
             ))}
           </p>
         )}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button className="btn" onClick={handleFav}>
-            {isFav ? "Quitar de Favoritos" : "Favorito"}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: "auto" }}>
+          <button className={`btn ${isFav ? "btn-danger" : ""}`} onClick={handleFav} style={isFav ? {backgroundColor: "#ff6b6b", borderColor: "#ff6b6b", color: "white"} : {}}>
+            {isFav ? "Quitar Favorito" : "Favorito"}
           </button>
           <button className="btn-outline" onClick={handleDownloadRDF}>
-            Descargar RDF
+            RDF
           </button>
         </div>
       </div>

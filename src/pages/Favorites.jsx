@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from "react";
+// src/pages/Favorites.jsx
+import { useContext, useEffect, useState, useCallback } from "react";
 import { AuthContext } from "../store/authContext";
 import { getUserFavorites } from "../services/api";
 import RecipeCard from "../components/RecipeCard";
@@ -9,7 +10,8 @@ export default function Favorites() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const loadFavorites = async () => {
+  // CAMBIO: Usamos useCallback para que la función sea estable y no rompa el useEffect
+  const loadFavorites = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setErrorMsg("");
@@ -23,13 +25,13 @@ export default function Favorites() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]); // Dependencia: user
 
   useEffect(() => {
     if (user) {
       loadFavorites();
     }
-  }, [user]);
+  }, [user, loadFavorites]); // Ahora incluimos loadFavorites sin miedo a bucles
 
   if (!user) {
     return (
