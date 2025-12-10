@@ -2,40 +2,30 @@
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../store/authContext";
 
-// === IMPORTACIÓN DE IMÁGENES LOCALES ===
-// Asegúrate de que las imágenes existan en src/assets/avatars/
-import avatar1 from "../assets/avatars/1.png";
-import avatar2 from "../assets/avatars/2.png";
-import avatar3 from "../assets/avatars/3.png";
-import avatar4 from "../assets/avatars/4.png";
-import avatar5 from "../assets/avatars/5.png";
-import avatar6 from "../assets/avatars/6.png";
-import avatar7 from "../assets/avatars/7.png";
-import avatar8 from "../assets/avatars/8.png";
-import avatar9 from "../assets/avatars/9.png";
-import avatar10 from "../assets/avatars/10.png";
-
-// Lista ordenada para mostrar en la selección
+// Usamos URLs estables para evitar errores de archivos locales
 const AVATAR_OPTIONS = [
-  avatar1, avatar2, avatar3, avatar4, avatar5,
-  avatar6, avatar7, avatar8, avatar9, avatar10
+  "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140037.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140047.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140051.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140040.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140039.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140052.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140061.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140057.png",
+  "https://cdn-icons-png.flaticon.com/512/4140/4140066.png",
 ];
 
 export default function Account() {
   const { user, login, register, logout, updateProfile, isAuthenticated } = useContext(AuthContext); 
   
-  // Estados para Login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
-  // Estados para Registro
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
-
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Estados Edición
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPassword, setEditPassword] = useState("");
@@ -48,7 +38,7 @@ export default function Account() {
     }
   }, [user]);
 
-  // === Auth Logic ===
+  // === Funciones de Auth ===
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMsg("");
@@ -75,7 +65,7 @@ export default function Account() {
     setRegEmail(""); setRegPassword(""); setRegUsername("");
   };
 
-  // === Update Profile Logic ===
+  // === GUARDAR PERFIL (Aquí ya no fallará) ===
   const handleUpdateProfile = async (e) => {
       e.preventDefault();
       
@@ -88,7 +78,7 @@ export default function Account() {
           payload.password = editPassword;
       }
 
-      // Llamada segura a updateProfile
+      // Ahora updateProfile siempre devuelve un objeto, nunca undefined
       const result = await updateProfile(user.id, payload);
       
       if (result && result.success) {
@@ -100,13 +90,9 @@ export default function Account() {
       }
   };
 
-  // Lógica para mostrar avatar (Local > User > UI Avatars)
   const getDisplayAvatar = () => {
-      // 1. Si estamos editando y seleccionó uno, mostrar ese
       if (isEditing && selectedAvatar) return selectedAvatar;
-      // 2. Si el usuario ya tiene uno guardado, mostrar ese
       if (user?.avatarUrl) return user.avatarUrl;
-      // 3. Fallback: Generador de letras
       const seed = user?.name || user?.username || "User";
       return `https://ui-avatars.com/api/?name=${seed}&background=random&size=128`;
   };
@@ -116,19 +102,22 @@ export default function Account() {
       <h1 className="page-title">Cuenta</h1>
 
       {isAuthenticated && user ? (
-        // === VISTA DE USUARIO LOGUEADO ===
+        // === USUARIO CONECTADO ===
         <div className="panel" style={{ maxWidth: "600px", margin: "0 auto" }}>
           <div className="panel-inner" style={{ textAlign: "center" }}>
             
-            {/* Avatar Centrado */}
-            <div style={{ marginBottom: "20px", display: "flex", justifyContent: "center" }}>
+            {/* IMAGEN CENTRADA CORRECTAMENTE */}
+            <div style={{ marginBottom: "20px" }}>
                 <img 
                     src={getDisplayAvatar()} 
                     alt="Perfil" 
                     style={{ 
-                        display: "block", margin: "0 auto",
-                        width: "120px", height: "120px", 
-                        borderRadius: "50%", objectFit: "cover",
+                        display: "block", 
+                        margin: "0 auto", // ESTO CENTRA LA IMAGEN
+                        width: "120px", 
+                        height: "120px", 
+                        borderRadius: "50%", 
+                        objectFit: "cover",
                         border: "4px solid var(--primary-color, #eee)",
                         boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
                     }} 
@@ -148,19 +137,19 @@ export default function Account() {
             ) : (
                 <form onSubmit={handleUpdateProfile} style={{ textAlign: "left" }}>
                     
-                    {/* Grid de Avatares Locales */}
+                    {/* Grid de Avatares */}
                     <div style={{ marginBottom: "20px" }}>
                         <label style={{ fontSize: "0.9rem", fontWeight: "bold", display: "block", marginBottom: "8px" }}>Elige tu Avatar</label>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "10px" }}>
-                            {AVATAR_OPTIONS.map((imgSrc, index) => (
+                            {AVATAR_OPTIONS.map((imgUrl, index) => (
                                 <img 
                                     key={index} 
-                                    src={imgSrc} 
+                                    src={imgUrl} 
                                     alt={`Avatar ${index + 1}`} 
-                                    onClick={() => setSelectedAvatar(imgSrc)}
+                                    onClick={() => setSelectedAvatar(imgUrl)}
                                     style={{ 
                                         width: "100%", aspectRatio: "1/1", borderRadius: "50%", cursor: "pointer", objectFit: "cover", 
-                                        border: selectedAvatar === imgSrc ? "3px solid #ff9800" : "2px solid transparent", 
+                                        border: selectedAvatar === imgUrl ? "3px solid #ff9800" : "2px solid transparent", 
                                         transition: "transform 0.2s" 
                                     }} 
                                 />

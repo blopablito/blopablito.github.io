@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+// Asegúrate de importar updateUser aquí abajo
 import { loginUser, registerUser, updateUser } from "../services/api";
 
 export const AuthContext = createContext({});
@@ -78,7 +79,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // === PROTECCIÓN DE ERRORES AQUÍ ===
+  // === ESTO ES LO QUE NO TIENES ===
   const updateProfile = useCallback(async (userId, data) => {
     if (!session?.token) {
         return { success: false, msg: "No hay sesión activa" };
@@ -94,10 +95,10 @@ export function AuthProvider({ children }) {
                 user: { ...prev.user, ...updatedUserRaw }
             };
         });
+        
         return { success: true };
     } catch (error) {
         console.error("Error updating profile", error);
-        // Siempre devolvemos un objeto, nunca undefined
         return { success: false, msg: error.message || "Error al actualizar" };
     }
   }, [session]);
@@ -116,7 +117,7 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
-      updateProfile
+      updateProfile // <--- ¡Asegúrate de que esto esté aquí!
     }),
     [session, login, register, logout, updateProfile]
   );
