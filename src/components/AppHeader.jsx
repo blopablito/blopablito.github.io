@@ -35,12 +35,9 @@ const Icon = {
 };
 
 export default function AppHeader() {
-  // CAMBIO: Quitamos 'open' de aquí porque no se usaba. Dejamos el espacio vacío para mantener setOpen.
-  const [, setOpen] = useState(false);
-  
+  const [, setOpen] = useState(false); // Eliminamos variable no usada
   const { pathname } = useLocation();
-  const authContext = useContext(AuthContext);
-  const user = authContext?.user;
+  const { user } = useContext(AuthContext); // Obtenemos user directamente
   const role = user?.role;
 
   useEffect(() => setOpen(false), [pathname]);

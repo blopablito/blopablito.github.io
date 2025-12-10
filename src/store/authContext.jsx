@@ -78,7 +78,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // === CORRECCIÓN AQUÍ: Evitamos que devuelva undefined ===
+  // === PROTECCIÓN DE ERRORES AQUÍ ===
   const updateProfile = useCallback(async (userId, data) => {
     if (!session?.token) {
         return { success: false, msg: "No hay sesión activa" };
@@ -94,10 +94,10 @@ export function AuthProvider({ children }) {
                 user: { ...prev.user, ...updatedUserRaw }
             };
         });
-        
         return { success: true };
     } catch (error) {
         console.error("Error updating profile", error);
+        // Siempre devolvemos un objeto, nunca undefined
         return { success: false, msg: error.message || "Error al actualizar" };
     }
   }, [session]);

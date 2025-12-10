@@ -24,18 +24,18 @@ const AVATAR_OPTIONS = [
 export default function Account() {
   const { user, login, register, logout, updateProfile, isAuthenticated } = useContext(AuthContext); 
   
-  // Estados para formularios de login/registro
+  // Estados para Login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
-  // Estados separados para registro (para no mezclar con login)
+  // Estados para Registro
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
 
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Estados de edición de perfil
+  // Estados Edición
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPassword, setEditPassword] = useState("");
@@ -48,14 +48,14 @@ export default function Account() {
     }
   }, [user]);
 
-  // === Autenticación ===
+  // === Auth Logic ===
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMsg("");
     try {
       await login({ email, password });
     } catch (err) {
-      setErrorMsg("Error al iniciar sesión. Verifica tus credenciales.");
+      setErrorMsg("Error al iniciar sesión.");
     }
   };
 
@@ -65,21 +65,17 @@ export default function Account() {
     try {
       await register({ email: regEmail, password: regPassword, username: regUsername });
     } catch (err) {
-      setErrorMsg("Error al crear cuenta. Intenta con otro correo.");
+      setErrorMsg("Error al crear cuenta.");
     }
   };
 
   const handleLogout = () => {
     logout();
-    // Limpiamos formularios
-    setEmail("");
-    setPassword("");
-    setRegEmail("");
-    setRegPassword("");
-    setRegUsername("");
+    setEmail(""); setPassword("");
+    setRegEmail(""); setRegPassword(""); setRegUsername("");
   };
 
-  // === Actualizar Perfil ===
+  // === Update Profile Logic ===
   const handleUpdateProfile = async (e) => {
       e.preventDefault();
       
@@ -92,6 +88,7 @@ export default function Account() {
           payload.password = editPassword;
       }
 
+      // Llamada segura a updateProfile
       const result = await updateProfile(user.id, payload);
       
       if (result && result.success) {
@@ -103,9 +100,13 @@ export default function Account() {
       }
   };
 
+  // Lógica para mostrar avatar (Local > User > UI Avatars)
   const getDisplayAvatar = () => {
+      // 1. Si estamos editando y seleccionó uno, mostrar ese
       if (isEditing && selectedAvatar) return selectedAvatar;
+      // 2. Si el usuario ya tiene uno guardado, mostrar ese
       if (user?.avatarUrl) return user.avatarUrl;
+      // 3. Fallback: Generador de letras
       const seed = user?.name || user?.username || "User";
       return `https://ui-avatars.com/api/?name=${seed}&background=random&size=128`;
   };
@@ -115,21 +116,19 @@ export default function Account() {
       <h1 className="page-title">Cuenta</h1>
 
       {isAuthenticated && user ? (
-        // === VISTA DE USUARIO LOGUEADO (Tu código que ya estaba bien) ===
+        // === VISTA DE USUARIO LOGUEADO ===
         <div className="panel" style={{ maxWidth: "600px", margin: "0 auto" }}>
           <div className="panel-inner" style={{ textAlign: "center" }}>
             
+            {/* Avatar Centrado */}
             <div style={{ marginBottom: "20px", display: "flex", justifyContent: "center" }}>
                 <img 
                     src={getDisplayAvatar()} 
                     alt="Perfil" 
                     style={{ 
-                        display: "block",
-                        margin: "0 auto",
-                        width: "120px", 
-                        height: "120px", 
-                        borderRadius: "50%", 
-                        objectFit: "cover",
+                        display: "block", margin: "0 auto",
+                        width: "120px", height: "120px", 
+                        borderRadius: "50%", objectFit: "cover",
                         border: "4px solid var(--primary-color, #eee)",
                         boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
                     }} 
@@ -142,12 +141,8 @@ export default function Account() {
                     <p style={{ color: "var(--muted)", margin: "0 0 20px 0", textAlign: "center" }}>{user.email}</p>
                     
                     <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                        <button className="btn-outline" onClick={() => setIsEditing(true)}>
-                            Editar Perfil
-                        </button>
-                        <button className="btn" style={{ background: "#ff6b6b", borderColor: "#ff6b6b", color: "white" }} onClick={handleLogout}>
-                            Cerrar sesión
-                        </button>
+                        <button className="btn-outline" onClick={() => setIsEditing(true)}>Editar Perfil</button>
+                        <button className="btn" style={{ background: "#ff6b6b", borderColor: "#ff6b6b", color: "white" }} onClick={handleLogout}>Cerrar sesión</button>
                     </div>
                 </>
             ) : (
@@ -156,29 +151,18 @@ export default function Account() {
                     {/* Grid de Avatares Locales */}
                     <div style={{ marginBottom: "20px" }}>
                         <label style={{ fontSize: "0.9rem", fontWeight: "bold", display: "block", marginBottom: "8px" }}>Elige tu Avatar</label>
-                        <div style={{ 
-                            display: "grid", 
-                            gridTemplateColumns: "repeat(5, 1fr)", 
-                            gap: "10px",
-                            background: "#f9f9f9",
-                            padding: "10px",
-                            borderRadius: "10px"
-                        }}>
-                            {AVATAR_OPTIONS.map((imgUrl, index) => (
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", background: "#f9f9f9", padding: "10px", borderRadius: "10px" }}>
+                            {AVATAR_OPTIONS.map((imgSrc, index) => (
                                 <img 
-                                    key={index}
-                                    src={imgUrl}
-                                    alt={`Avatar ${index + 1}`}
-                                    onClick={() => setSelectedAvatar(imgUrl)}
-                                    style={{
-                                        width: "100%",
-                                        aspectRatio: "1/1",
-                                        borderRadius: "50%",
-                                        cursor: "pointer",
-                                        objectFit: "cover",
-                                        border: selectedAvatar === imgUrl ? "3px solid #ff9800" : "2px solid transparent",
-                                        transition: "transform 0.2s"
-                                    }}
+                                    key={index} 
+                                    src={imgSrc} 
+                                    alt={`Avatar ${index + 1}`} 
+                                    onClick={() => setSelectedAvatar(imgSrc)}
+                                    style={{ 
+                                        width: "100%", aspectRatio: "1/1", borderRadius: "50%", cursor: "pointer", objectFit: "cover", 
+                                        border: selectedAvatar === imgSrc ? "3px solid #ff9800" : "2px solid transparent", 
+                                        transition: "transform 0.2s" 
+                                    }} 
                                 />
                             ))}
                         </div>
@@ -187,24 +171,12 @@ export default function Account() {
                     <div style={{ display: "grid", gap: "12px" }}>
                         <div>
                             <label style={{ fontSize: "0.9rem", fontWeight: "bold" }}>Nombre</label>
-                            <input 
-                                type="text" 
-                                value={editName} 
-                                onChange={(e) => setEditName(e.target.value)}
-                                style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            />
+                            <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }} />
                         </div>
                         <div>
                             <label style={{ fontSize: "0.9rem", fontWeight: "bold" }}>Nueva Contraseña (Opcional)</label>
-                            <input 
-                                type="password" 
-                                placeholder="Dejar vacía para no cambiar"
-                                value={editPassword} 
-                                onChange={(e) => setEditPassword(e.target.value)}
-                                style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            />
+                            <input type="password" placeholder="Dejar vacía para no cambiar" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }} />
                         </div>
-                        
                         <div style={{ display: "flex", gap: "10px", marginTop: "15px", justifyContent: "center" }}>
                             <button className="btn" type="submit">Guardar Cambios</button>
                             <button className="btn-outline" type="button" onClick={() => setIsEditing(false)}>Cancelar</button>
@@ -215,102 +187,32 @@ export default function Account() {
           </div>
         </div>
       ) : (
-        // === VISTA DESCONECTADO: LOGIN (IZQ) - REGISTRO (DER) ===
+        // === VISTA DE DOS COLUMNAS (LOGIN / REGISTRO) ===
         <div className="panel">
-           <div className="panel-inner" style={{ 
-               display: "grid", 
-               gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", 
-               gap: "2rem",
-               alignItems: "start"
-           }}>
+           <div className="panel-inner" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem", alignItems: "start" }}>
              
-             {/* COLUMNA IZQUIERDA: LOGIN */}
+             {/* LOGIN */}
              <div style={{ borderRight: "1px solid #eee", paddingRight: "1rem" }}>
                  <h2 style={{ marginTop: 0 }}>Iniciar sesión</h2>
-                 <p style={{ color: "var(--muted)", marginBottom: "1rem" }}>Accede a tus recetas guardadas.</p>
                  <form onSubmit={handleLogin} style={{ display: "grid", gap: "12px" }}>
-                     <div>
-                        <label style={{fontWeight: "bold", fontSize: "0.9rem"}}>Correo</label>
-                        <input 
-                            type="email" 
-                            required 
-                            value={email} 
-                            onChange={e=>setEmail(e.target.value)} 
-                            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            placeholder="tu@email.com"
-                        />
-                     </div>
-                     <div>
-                        <label style={{fontWeight: "bold", fontSize: "0.9rem"}}>Contraseña</label>
-                        <input 
-                            type="password" 
-                            required 
-                            value={password} 
-                            onChange={e=>setPassword(e.target.value)} 
-                            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            placeholder="••••••••"
-                        />
-                     </div>
-                     <button className="btn" type="submit" style={{ marginTop: "10px" }}>Entrar</button>
+                     <div><label>Correo</label><input type="email" required value={email} onChange={e=>setEmail(e.target.value)} style={{ width: "100%", padding: "8px" }} /></div>
+                     <div><label>Contraseña</label><input type="password" required value={password} onChange={e=>setPassword(e.target.value)} style={{ width: "100%", padding: "8px" }} /></div>
+                     <button className="btn" type="submit">Entrar</button>
                  </form>
              </div>
 
-             {/* COLUMNA DERECHA: REGISTRO */}
+             {/* REGISTRO */}
              <div style={{ paddingLeft: "1rem" }}>
                  <h2 style={{ marginTop: 0 }}>Crear cuenta</h2>
-                 <p style={{ color: "var(--muted)", marginBottom: "1rem" }}>¿No tienes cuenta? Regístrate gratis.</p>
                  <form onSubmit={handleRegister} style={{ display: "grid", gap: "12px" }}>
-                     <div>
-                        <label style={{fontWeight: "bold", fontSize: "0.9rem"}}>Nombre de usuario</label>
-                        <input 
-                            type="text" 
-                            required 
-                            value={regUsername} 
-                            onChange={e=>setRegUsername(e.target.value)} 
-                            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            placeholder="Ej. ChefPablo"
-                        />
-                     </div>
-                     <div>
-                        <label style={{fontWeight: "bold", fontSize: "0.9rem"}}>Correo</label>
-                        <input 
-                            type="email" 
-                            required 
-                            value={regEmail} 
-                            onChange={e=>setRegEmail(e.target.value)} 
-                            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            placeholder="tu@email.com"
-                        />
-                     </div>
-                     <div>
-                        <label style={{fontWeight: "bold", fontSize: "0.9rem"}}>Contraseña</label>
-                        <input 
-                            type="password" 
-                            required 
-                            value={regPassword} 
-                            onChange={e=>setRegPassword(e.target.value)} 
-                            style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
-                            placeholder="Crea una contraseña segura"
-                        />
-                     </div>
-                     <button className="btn-outline" type="submit" style={{ marginTop: "10px" }}>Registrarse</button>
+                     <div><label>Usuario</label><input type="text" required value={regUsername} onChange={e=>setRegUsername(e.target.value)} style={{ width: "100%", padding: "8px" }} /></div>
+                     <div><label>Correo</label><input type="email" required value={regEmail} onChange={e=>setRegEmail(e.target.value)} style={{ width: "100%", padding: "8px" }} /></div>
+                     <div><label>Contraseña</label><input type="password" required value={regPassword} onChange={e=>setRegPassword(e.target.value)} style={{ width: "100%", padding: "8px" }} /></div>
+                     <button className="btn-outline" type="submit">Registrarse</button>
                  </form>
              </div>
-
-             {errorMsg && (
-                 <div style={{ 
-                     gridColumn: "1 / -1", 
-                     color: "#d32f2f", 
-                     background: "#ffebee", 
-                     padding: "10px", 
-                     borderRadius: "6px", 
-                     textAlign: "center",
-                     marginTop: "1rem"
-                 }}>
-                     {errorMsg}
-                 </div>
-             )}
-
+             
+             {errorMsg && <div style={{ gridColumn: "1 / -1", color: "red", textAlign: "center" }}>{errorMsg}</div>}
            </div>
         </div>
       )}

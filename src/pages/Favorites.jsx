@@ -5,18 +5,18 @@ import { getUserFavorites } from "../services/api";
 import RecipeCard from "../components/RecipeCard";
 
 export default function Favorites() {
-  const { user } = useContext(AuthContext);
+  const { user, token } = useContext(AuthContext); // Necesitamos el token también
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // CAMBIO: Usamos useCallback para que la función sea estable y no rompa el useEffect
+  // Usamos useCallback para que useEffect no se queje
   const loadFavorites = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setErrorMsg("");
     try {
-      const data = await getUserFavorites(user.id);
+      const data = await getUserFavorites(user.id, token);
       setList(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error("Error cargando favoritos:", e);
@@ -25,13 +25,13 @@ export default function Favorites() {
     } finally {
       setLoading(false);
     }
-  }, [user]); // Dependencia: user
+  }, [user, token]);
 
   useEffect(() => {
     if (user) {
       loadFavorites();
     }
-  }, [user, loadFavorites]); // Ahora incluimos loadFavorites sin miedo a bucles
+  }, [user, loadFavorites]);
 
   if (!user) {
     return (
