@@ -1,4 +1,3 @@
-// src/components/RegisterModal.jsx
 import { useContext, useState } from "react";
 import { AuthContext } from "../store/authContext";
 
@@ -7,8 +6,8 @@ export default function RegisterModal({ onClose }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [birthday, setBirthday] = useState(""); // YYYY-MM-DD opcional
-  const [gender, setGender] = useState(""); // opcional
+  const [birthday, setBirthday] = useState(""); 
+  const [gender, setGender] = useState(""); 
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {

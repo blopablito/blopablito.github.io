@@ -1,5 +1,4 @@
-// src/store/FavsStore.js
-const KEY = "sr_favs_v1"; // { [userId]: { ids: string[], items: { [id]: recipe } } }
+const KEY = "sr_favs_v1"; 
 
 function loadAll() {
   try {

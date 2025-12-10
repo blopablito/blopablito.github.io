@@ -1,11 +1,10 @@
-// src/pages/Home.jsx
 import { useEffect, useMemo, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Board from "../components/Board";
 import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
 import RecipeCard from "../components/RecipeCard";
-import { getRecipes, getUserFavorites } from "../services/api"; // Usamos la API real
+import { getRecipes, getUserFavorites } from "../services/api"; 
 import { AuthContext } from "../store/authContext";
 
 export default function Home() {
@@ -14,12 +13,10 @@ export default function Home() {
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(true);
   
-  // Obtenemos user y token del contexto
   const { user, token } = useContext(AuthContext);
-  const [favIds, setFavIds] = useState([]); // Inicializamos siempre como array vacío
+  const [favIds, setFavIds] = useState([]);
   const navigate = useNavigate();
 
-  // Cargar Recetas
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -34,12 +31,10 @@ export default function Home() {
     })();
   }, []);
 
-  // Función para cargar favoritos desde la API
   const loadFavorites = useCallback(async () => {
     if (user && token) {
         try {
             const favs = await getUserFavorites(user.id, token);
-            // Extraemos solo los IDs para saber cuáles marcar
             const ids = favs.map(r => String(r.id));
             setFavIds(ids);
         } catch (e) {
@@ -50,14 +45,11 @@ export default function Home() {
     }
   }, [user, token]);
 
-  // Cargar favoritos al inicio o cuando cambia el usuario
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
 
-  // Callback que se ejecuta cuando RecipeCard cambia un favorito
   const handleFavChange = async () => {
-     // Simplemente recargamos la lista para estar sincronizados
      await loadFavorites();
   };
 
@@ -142,8 +134,8 @@ export default function Home() {
             <RecipeCard
               key={rec.id}
               receta={rec}
-              onFav={handleFavChange} // Pasamos la función de recarga
-              isFav={favIds.includes(String(rec.id))} // Verificamos si es favorito de forma segura
+              onFav={handleFavChange} 
+              isFav={favIds.includes(String(rec.id))} 
             />
           ))}
         </div>

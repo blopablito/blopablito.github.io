@@ -1,4 +1,3 @@
-// src/components/RecipeCard.jsx
 import { useState, useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Toast from "./Toast";
@@ -9,12 +8,10 @@ const capitalize = (s) =>
   typeof s === "string" && s.length ? s[0].toUpperCase() + s.slice(1) : s;
 
 export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
-  // CAMBIO: Obtenemos también el token
   const { user, token } = useContext(AuthContext);
   const [isFav, setIsFav] = useState(initialFav);
   const [toastMsg, setToastMsg] = useState("");
 
-  // Sincronizar estado si las props cambian (importante para búsquedas)
   useEffect(() => {
     setIsFav(initialFav);
   }, [initialFav]);
@@ -26,17 +23,14 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
     }
     try {
       if (isFav) {
-        // CAMBIO: Pasamos el token a la función de la API
         await removeFavorite(user.id, receta.id, token);
         setIsFav(false);
         setToastMsg("Se quitó de favoritos");
       } else {
-        // CAMBIO: Pasamos el token a la función de la API
         await addFavorite(user.id, receta.id, token);
         setIsFav(true);
         setToastMsg("Se guardó en favoritos");
       }
-      // Notificamos al padre (Home) para que actualice su lista
       if (onFav) await onFav();
       
     } catch (e) {
@@ -46,7 +40,6 @@ export default function RecipeCard({ receta, isFav: initialFav, onFav }) {
   };
 
   const handleDownloadRDF = () => {
-    // Ajusta la URL base según tu entorno
     const API_BASE = "https://recetario-app-backend.onrender.com";
     const url = `${API_BASE}/rdf/${receta.id}`;
     const link = document.createElement("a");

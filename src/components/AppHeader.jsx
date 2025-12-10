@@ -1,4 +1,3 @@
-// src/components/AppHeader.jsx
 import { useEffect, useState, useContext } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { AuthContext } from "../store/authContext";
@@ -35,9 +34,9 @@ const Icon = {
 };
 
 export default function AppHeader() {
-  const [, setOpen] = useState(false); // Eliminamos variable no usada
+  const [, setOpen] = useState(false); 
   const { pathname } = useLocation();
-  const { user } = useContext(AuthContext); // Obtenemos user directamente
+  const { user } = useContext(AuthContext); 
   const role = user?.role;
 
   useEffect(() => setOpen(false), [pathname]);

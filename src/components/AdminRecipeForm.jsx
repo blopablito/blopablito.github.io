@@ -1,4 +1,3 @@
-// src/components/AdminRecipeForm.jsx
 import { useEffect, useState } from "react";
 
 const DIFFICULTIES = ["Fácil", "Intermedio", "Difícil"];
@@ -38,7 +37,7 @@ export default function AdminRecipeForm({ initial, onSubmit, onCancel, submitLab
       image,
       cookTime: Number(cookTime),
       servings: Number(servings),
-      difficulty, // 🔎 se envía tal cual: "Fácil", "Intermedio", "Difícil"
+      difficulty,
       category,
       restrictions,
       ingredients,

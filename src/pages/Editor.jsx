@@ -1,4 +1,3 @@
-// src/pages/Editor.jsx
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../store/authContext";
 import { getRecipes, createRecipe, updateRecipe, deleteRecipe } from "../services/api";
@@ -16,7 +15,6 @@ export default function Editor() {
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState("");
 
-  // 🔎 Cargar recetas al montar
   useEffect(() => {
     (async () => {
       try {
@@ -32,14 +30,12 @@ export default function Editor() {
     })();
   }, [token]);
 
-  // 🔎 Filtrar recetas por búsqueda
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return all;
     return all.filter((r) => r.name?.toLowerCase().includes(q));
   }, [all, query]);
 
-  // 🔎 Crear receta
   async function handleCreate(payload) {
     try {
       const created = await createRecipe(payload, token);
@@ -52,7 +48,6 @@ export default function Editor() {
     }
   }
 
-  // 🔎 Actualizar receta
   async function handleUpdate(id, payload) {
     try {
       const updated = await updateRecipe(id, payload, token);
@@ -65,7 +60,6 @@ export default function Editor() {
     }
   }
 
-  // 🔎 Eliminar receta
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar esta receta?")) return;
     try {
@@ -79,7 +73,6 @@ export default function Editor() {
     }
   }
 
-  // 🔎 Si no es admin, mostrar aviso
   if (!isAdmin) {
     return (
       <div className="container">
@@ -94,7 +87,6 @@ export default function Editor() {
     );
   }
 
-  // 🔎 Vista principal
   return (
     <div id="editor" className="container">
       <h1 className="page-title">Editor de Recetas</h1>

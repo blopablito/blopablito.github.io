@@ -77,7 +77,6 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Función segura para actualizar
   const updateProfile = useCallback(async (userId, data) => {
     if (!session?.token) {
         return { success: false, msg: "No hay sesión activa" };

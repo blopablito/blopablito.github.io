@@ -1,4 +1,3 @@
-// src/components/Comments.jsx
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../store/authContext";
 import { getComments, addComment, deleteComment } from "../services/api";
@@ -32,7 +31,7 @@ export default function Comments({ recipeId }) {
 
   useEffect(() => {
     loadComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [recipeId]);
 
   const handleSubmit = async (e) => {
@@ -46,7 +45,7 @@ export default function Comments({ recipeId }) {
     try {
       await addComment(String(recipeId), {
         content: text,
-        userId: user.id, // el backend espera 'userId' en el body
+        userId: user.id, 
       });
       setContent("");
       await loadComments();
@@ -79,7 +78,6 @@ export default function Comments({ recipeId }) {
       <div className="panel-inner" style={{ display: "grid", gap: 16 }}>
         <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Comentarios</h2>
 
-        {/* Formulario para comentar */}
         {canComment ? (
           <form
             onSubmit={handleSubmit}
@@ -116,7 +114,6 @@ export default function Comments({ recipeId }) {
           </div>
         )}
 
-        {/* Estados de carga / error */}
         {loading && (
           <div style={{ color: "var(--muted)" }}>Cargando…</div>
         )}
@@ -125,7 +122,6 @@ export default function Comments({ recipeId }) {
           <div style={{ color: "var(--danger)" }}>{errorMsg}</div>
         )}
 
-        {/* Lista de comentarios */}
         {!loading && !errorMsg && items.length === 0 && (
           <div style={{ color: "var(--muted)", fontSize: 14 }}>
             Aún no hay comentarios. ¡Sé la primera persona en comentar! 🍽️

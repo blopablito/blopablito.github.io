@@ -76,7 +76,6 @@ export default function Recipe() {
         </div>
       </div>
 
-      {/* Sección de comentarios, debajo del contenido principal */}
       <Comments recipeId={id} />
     </div>
   );

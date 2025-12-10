@@ -1,4 +1,3 @@
-// src/components/Filters.jsx
 const TIME = [
   { key: "15-30", label: "15 - 30 min" },
   { key: "30-45", label: "30 - 45 min" },

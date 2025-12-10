@@ -81,7 +81,6 @@ export async function registerUser({ email, password, username, birthday, gender
   return await http("/api/auth/register", { method: "POST", body });
 }
 
-// Función requerida para el perfil
 export async function updateUser(userId, payload, token) {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     return await http(`/api/users/${userId}`, { method: "PUT", body: payload, headers });

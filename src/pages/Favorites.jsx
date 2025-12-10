@@ -1,16 +1,14 @@
-// src/pages/Favorites.jsx
 import { useContext, useEffect, useState, useCallback } from "react";
 import { AuthContext } from "../store/authContext";
 import { getUserFavorites } from "../services/api";
 import RecipeCard from "../components/RecipeCard";
 
 export default function Favorites() {
-  const { user, token } = useContext(AuthContext); // Necesitamos el token también
+  const { user, token } = useContext(AuthContext); 
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Usamos useCallback para que useEffect no se queje
   const loadFavorites = useCallback(async () => {
     if (!user) return;
     setLoading(true);

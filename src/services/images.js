@@ -1,4 +1,3 @@
-// src/services/images.js
 const BASE_URL = process.env.REACT_APP_API_BASE || "https://recetario-app-backend.onrender.com";
 
 export function resolveImageUrl(value) {

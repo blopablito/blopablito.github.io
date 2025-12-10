@@ -1,22 +1,18 @@
-// src/pages/Account.jsx
 import { useContext, useState } from "react";
 import { AuthContext } from "../store/authContext";
 
 export default function Account() {
   const { user, login, register, logout, isAuthenticated } = useContext(AuthContext); 
   
-  // Estados para Login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
-  // Estados para Registro
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regUsername, setRegUsername] = useState("");
 
   const [errorMsg, setErrorMsg] = useState("");
 
-  // === Auth Logic ===
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMsg("");
@@ -43,7 +39,6 @@ export default function Account() {
     setRegEmail(""); setRegPassword(""); setRegUsername("");
   };
 
-  // Helper para mostrar avatar (URL del usuario o generado con iniciales)
   const getDisplayAvatar = () => {
       if (user?.avatarUrl) return user.avatarUrl;
       const seed = user?.name || user?.username || "User";
@@ -55,11 +50,9 @@ export default function Account() {
       <h1 className="page-title">Cuenta</h1>
 
       {isAuthenticated && user ? (
-        // === USUARIO CONECTADO (SOLO LECTURA) ===
         <div className="panel" style={{ maxWidth: "500px", margin: "0 auto" }}>
           <div className="panel-inner" style={{ textAlign: "center" }}>
             
-            {/* Avatar */}
             <div style={{ marginBottom: "20px", display: "flex", justifyContent: "center" }}>
                 <img 
                     src={getDisplayAvatar()} 
@@ -74,11 +67,9 @@ export default function Account() {
                 />
             </div>
 
-            {/* Datos del Usuario */}
             <h2 style={{ margin: "0 0 5px 0", textAlign: "center" }}>{user.name || user.username}</h2>
             <p style={{ color: "var(--muted)", margin: "0 0 30px 0", textAlign: "center" }}>{user.email}</p>
             
-            {/* Botón Cerrar Sesión */}
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <button 
                     className="btn" 
@@ -92,11 +83,9 @@ export default function Account() {
           </div>
         </div>
       ) : (
-        // === VISTA DESCONECTADO (DOS COLUMNAS) ===
         <div className="panel">
            <div className="panel-inner" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem", alignItems: "start" }}>
              
-             {/* LOGIN */}
              <div style={{ borderRight: "1px solid #eee", paddingRight: "1rem" }}>
                  <h2 style={{ marginTop: 0 }}>Iniciar sesión</h2>
                  <form onSubmit={handleLogin} style={{ display: "grid", gap: "12px" }}>
@@ -106,7 +95,6 @@ export default function Account() {
                  </form>
              </div>
 
-             {/* REGISTRO */}
              <div style={{ paddingLeft: "1rem" }}>
                  <h2 style={{ marginTop: 0 }}>Crear cuenta</h2>
                  <form onSubmit={handleRegister} style={{ display: "grid", gap: "12px" }}>
